@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <script src="./libs/common.js"></script>
     <script src="./libs/matter.min.js"></script>
     <script src="./libs/matterjsRaycast.js"></script>
@@ -18,187 +17,42 @@
         @font-face {
             font-family: squareforced;
             src: local('FORCEDSQUARE'), url(./assets/FORCEDSQUARE.ttf) format('truetype');
+
         }
-
-        * { box-sizing: border-box; }
-        html, body {
-            margin: 0; overflow: hidden;
-            width: 100vw; height: 100vh;
-            background: #111; touch-action: none;
+        body {
+            margin: 0%;
+            overflow: hidden;
         }
-
-        /* ── Canvas ocupa TODO excepto la zona de controles ── */
-
-        /* PORTRAIT: canvas arriba, controles abajo */
-        @media (orientation: portrait) {
-            #c {
-                position: fixed;
-                top: 0; left: 0;
-                width: 100vw;
-                height: calc(100vh - 160px);
-                display: block;
-            }
-            #mobile-controls {
-                position: fixed;
-                bottom: 0; left: 0;
-                width: 100vw; height: 160px;
-                display: flex; flex-direction: row;
-                align-items: center; justify-content: space-between;
-                padding: 10px 24px; gap: 12px;
-                background: rgba(0,0,0,0.85);
-                border-top: 1px solid rgba(233,69,96,0.3);
-                z-index: 50;
-            }
-            #controls-left, #controls-right {
-                display: flex; align-items: center; justify-content: center;
-            }
-        }
-
-        /* LANDSCAPE: controles a los lados, canvas en centro */
-        @media (orientation: landscape) {
-            #c {
-                position: fixed;
-                top: 0; left: 150px;
-                width: calc(100vw - 300px);
-                height: 100vh;
-                display: block;
-            }
-            #mobile-controls { display: contents; }
-            #controls-left {
-                position: fixed; top: 0; left: 0;
-                width: 150px; height: 100vh;
-                display: flex; align-items: center; justify-content: center;
-                background: rgba(0,0,0,0.85);
-                border-right: 1px solid rgba(233,69,96,0.3);
-                z-index: 50;
-            }
-            #controls-right {
-                position: fixed; top: 0; right: 0;
-                width: 150px; height: 100vh;
-                display: flex; flex-direction: column;
-                align-items: center; justify-content: center;
-                gap: 18px;
-                background: rgba(0,0,0,0.85);
-                border-left: 1px solid rgba(233,69,96,0.3);
-                z-index: 50;
-            }
-        }
-
-        /* ── D-PAD ── */
-        .dpad { position: relative; width: 130px; height: 130px; flex-shrink: 0; }
-        .btn-d {
-            position: absolute; width: 44px; height: 44px;
-            background: rgba(233,69,96,0.2);
-            border: 2px solid rgba(233,69,96,0.6);
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: #fff;
-            cursor: pointer; -webkit-tap-highlight-color: transparent;
-            transition: background 0.08s; user-select: none;
-        }
-        .btn-d:active, .btn-d.pressed { background: rgba(233,69,96,0.7); }
-        .btn-left  { left: 0;    top: 43px; }
-        .btn-right { left: 86px; top: 43px; }
-        .btn-up    { left: 43px; top: 0; }
-        .btn-down  { left: 43px; top: 86px; }
-
-        /* ── BOTONES ACCIÓN ── */
-        .action-btns { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
-        .btn-action {
-            width: 58px; height: 58px; border-radius: 50%;
-            border: 3px solid rgba(255,255,255,0.5);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px; font-weight: bold; color: #fff;
-            cursor: pointer; -webkit-tap-highlight-color: transparent;
-            flex-shrink: 0; user-select: none; transition: filter 0.08s;
-        }
-        .btn-action:active, .btn-action.pressed { filter: brightness(1.6); }
-        .btn-jump  { background: rgba(233,69,96,0.6); font-size: 20px; }
-        .btn-enter { background: rgba(0,180,100,0.6); font-size: 8px; font-family: monospace; }
-        .btn-e     { background: rgba(50,120,255,0.6); font-size: 13px; font-family: monospace; }
-
-        /* ── Overlay back button ── */
         .overlay {
-            position: fixed; top: 0; left: 0; z-index: 100;
-            font-size: 11px; padding: 4px 8px;
-            background: rgba(0,0,0,0.5);
+            position: fixed;
+            top: 0%;
+            left: 0%;
+            z-index: 10;
         }
-        .overlay a { color: #adf; text-decoration: none; }
-
-        /* ── Menú host/join original ── */
-        #menu {
-            position: fixed; top: 30px; left: 6px; z-index: 80;
-            background: rgba(255,255,255,0.95);
-            padding: 8px 12px; border-radius: 8px;
-            font-size: 12px; max-width: 240px;
-        }
-        #menu h2 { font-size: 13px; margin: 3px 0; }
-        #menu button {
-            margin: 3px 0; padding: 5px 8px; font-size: 11px;
-            cursor: pointer; border-radius: 4px; border: 1px solid #aaa;
-            display: block; width: 100%;
-        }
-
-        /* ── Room code toast ── */
-        #room-toast {
-            display: none;
-            position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
-            background: rgba(15,52,96,0.97);
-            color: #fff; font-size: 11px; font-weight: bold;
-            padding: 10px 20px; border-radius: 10px;
-            z-index: 200; white-space: nowrap;
-            font-family: 'Courier New', monospace;
-            border: 2px solid #e94560;
-            max-width: 90vw; text-align: center;
-        }
-        #room-toast b { color: #e94560; font-size: 16px; letter-spacing: 4px; }
     </style>
 </head>
 <body>
 
-    <!-- ── Parse URL params (sistema original intacto) ── -->
     <script>
-        var urlRaw = location.search.slice(1)
-        var urlData = {}
-        urlRaw.split('&').forEach(function(pair) {
-            var parts = pair.split('=')
-            if (parts[0]) urlData[parts[0]] = decodeURIComponent(parts[1] || '')
+        var url = location.href,
+            urlData = url.split("?").splice(-1,1)
+
+        data = {}
+        urlData.forEach((e)=>{
+            data[e.split("=")[0]] = e.split("=")[1]
         })
-        // urlData.host = 'true'  → modo host
-        // urlData.join = 'CAKE'  → modo cliente, se conecta al código
+
+        urlData = data
     </script>
 
-    <!-- ── Telegram ── -->
-    <script>
-        (function() {
-            var tg = window.Telegram && window.Telegram.WebApp
-            if (tg) {
-                tg.ready()
-                tg.expand()
-                tg.BackButton.show()
-                tg.BackButton.onClick(function() {
-                    window.location.href = 'index.html'
-                })
-            }
-        })()
-    </script>
-
-    <!-- ── Toast room code ── -->
-    <div id="room-toast"></div>
-
-    <!-- ── Overlay ── -->
+    <canvas id="c" style="display: none;"></canvas>
     <div class="overlay">
-        <a href="./index.html">← Back</a> |
-        <a style="display:none;" id="restartLevel" href="#" onClick="(function(){
+        <a href="./index.html">Back to Home</a> | 
+        <a style="display: none;" id="restartLevel" href="#"  onClick="(function(){
             mainGame.levelHandler.setLevel(mainGame.levelHandler.currentLevel.name)
             return false;
-        })();return false;">Restart</a>
+        })();return false;">Restart Level</a>
     </div>
-
-    <!-- ── CANVAS: ocupa el espacio calculado por CSS ── -->
-    <canvas id="c" style="display:none;"></canvas>
-
-    <!-- ── Scripts del juego (originales, sin tocar) ── -->
     <script src="./src/multiplayer.js"></script>
     <script src="./src/buttons.js"></script>
     <script src="./src/door.js"></script>
@@ -206,42 +60,48 @@
     <script src="./src/blocks.js"></script>
     <script src="./src/lasers.js"></script>
     <script src="./src/jumppad.js"></script>
+
     <script src="./src/levels.js"></script>
     <script src="./src/level.js"></script>
+
     <script src="./src/matterInit.js"></script>
     <script src="./src/atlasSetup.js"></script>
+
     <script src="src/syncController.js"></script>
+
     <script src="./src/controls.js"></script>
     <script src="./src/update.js"></script>
+
     <script src="./src/player.js"></script>
     <script src="./src/render.js"></script>
+
     <script src="./src/entity.js"></script>
     <script src="src/particles.js"></script>
+
     <script src="./src/game.js"></script>
+
     <script src="./src/constraints.js"></script>
+
     <script src="./src/host.js"></script>
     <script src="./src/client.js"></script>
+
     <script src="./src/menu.js"></script>
 
-    <!-- ── Menú host/join (HTML original) ── -->
     <div id="menu">
         <br>
-        <div id="host" style="display:none;">
+        <div id="host" style="display: none;">
             <div id="gameDetails">
-                <div id="gameCode">
-                    Code: <b id="roomCode">fetching...</b><span id="incoming"></span>
-                </div>
+                <div id="gameCode">Code: <b id="roomCode">fetching</b><span id="incoming"></span></div>
                 <a id="copyLink" href="#" onclick="(function(){
-                    var code = document.getElementById('roomCode').textContent.trim();
-                    navigator.clipboard.writeText(code).catch(function(){});
-                    showRoomCodeToast(code);
-                    return false;
-                })();return false;">[Copy Code]</a>
+        navigator.clipboard.writeText(`https://aeolus-1.github.io/picoParkClone/game.html?join=${hostConnection.joinConn.selfId}`);
+        return false;
+    })();return false;">[Copy Link]</a>
             </div>
-            <div id="memberList" style="border:solid black 1px;width:200px">
+            <div id="memberList" style="border: solid black 1px; width:200px">
                 <h2>Members:</h2>
                 <div id="memberlist"></div>
                 <div>Host<br></div>
+
             </div>
             <button onClick="(function(){
                 mainGame.playerhandler.addPlayer({
@@ -251,187 +111,93 @@
                 })
                 addPlayerToMenu('Player2')
                 return false;
-            })();return false;">+ Local Player</button>
-            <hr>
+            })();return false;">Add local co-op Player</button>
+<hr>
             <button onClick="(function(){
                 startGame()
-                hostConnection.broadcast(JSON.stringify({ startGame:true }))
+                hostConnection.broadcast(JSON.stringify({
+                    startGame:true,
+                }))
                 return false;
-            })();return false;">▶ Start Game</button>
-        </div>
-        <div id="join" style="display:none;">
-            ⏳ Waiting for host to start...
+            })();return false;">Start Game</button>
+            </div>
+
+        <div id="join" style="display: none;">
+            Waiting for host to start (maybe idk really)
         </div>
     </div>
 
-    <!-- ── CONTROLES MÓVILES (superpuestos sobre el canvas via CSS) ── -->
-    <div id="mobile-controls">
-        <div id="controls-left">
-            <div class="dpad">
-                <div class="btn-d btn-up"    data-key="ArrowUp"    data-code="38">↑</div>
-                <div class="btn-d btn-left"  data-key="ArrowLeft"  data-code="37">←</div>
-                <div class="btn-d btn-right" data-key="ArrowRight" data-code="39">→</div>
-                <div class="btn-d btn-down"  data-key="ArrowDown"  data-code="40">↓</div>
-            </div>
-        </div>
-        <div id="controls-right">
-            <div class="action-btns">
-                <div class="btn-action btn-enter" data-key="Enter" data-code="13">ENT</div>
-                <div class="btn-action btn-jump"  data-key="ArrowUp" data-code="38">⬆️</div>
-                <div class="btn-action btn-e"     data-key="e"    data-code="69">E</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ── Lógica principal ── -->
     <script>
-        window.localfile = location.protocol == "file:"
-
-        /* Room code toast — se muestra cuando el host obtiene su ID */
-        function showRoomCodeToast(code) {
-            var t = document.getElementById('room-toast')
-            t.innerHTML = 'ROOM CODE:<br><b>' + code + '</b><br><small style="font-size:9px;color:#adf">Share with friends to join</small>'
-            t.style.display = 'block'
-            // No auto-ocultar — el host debe poder leerlo y copiarlo
-        }
-
-        /* watchRoomCode: cuando PeerJS asigna el ID (palabra de 4 letras), lo muestra */
-        function watchRoomCode() {
-            var el = document.getElementById('roomCode')
-            if (!el) return
-            var observer = new MutationObserver(function() {
-                var code = el.textContent.trim()
-                if (code && code !== 'fetching...') {
-                    showRoomCodeToast(code)
-                    observer.disconnect()
-                }
-            })
-            observer.observe(el, { childList: true, subtree: true, characterData: true })
-        }
-
+        window.localfile = location.protocol=="file:"
         function initGame() {
             window.mainGame = new Game()
 
             var player1 = mainGame.playerhandler.addPlayer({
-                controls: ["arrowleft","arrowright","arrowup","arrowdown"],
-                keys: keys,
-            })
+            controls:["arrowleft","arrowright","arrowup","arrowdown"],
+            keys:keys,
+        }) 
 
-            window.hostConnection; window.clientConnection
-            if (urlData.host) {
-                hostConnection = new Host(mainGame)
-                hostConnection.init()
-            }
+            window.hostConnection;window.clientConnection
+            if (urlData.host) {hostConnection = new Host(mainGame);hostConnection.init()}
             if (urlData.join) {
-                clientConnection = new Client(mainGame, player1)
-                clientConnection.init(urlData.join)
+                clientConnection = new Client(mainGame,player1);clientConnection.init(urlData.join)
                 document.getElementById("restartLevel").style.display = "none"
             }
-            if (!urlData.host && !urlData.join) startGame()
+            if (!urlData.host&&!urlData.join) startGame()
 
-            setInterval(function() {
+
+            setInterval(() => {
                 if (window.hostConnection) hostConnection.updateClients()
                 if (window.clientConnection) clientConnection.updateHost()
-            }, 10)
 
-            setInterval(function() {
-                mainGame.players.forEach(function(e) {
-                    if (!e.onlinePlayer) e.updateKeys(keys)
-                })
-            }, 5)
+            }, 10);
+
+            setInterval(() => {
+                mainGame.players.forEach((e)=>{if(!e.onlinePlayer) e.updateKeys(keys)})
+            }, 5);
+            
         }
-
         function startMainGame() {
             mainGame.testInit()
             mainGame.initRender()
         }
 
-        window.onload = function() {
+       
+
+
+        window.onload=()=>{
             _loadFont("squareforced")
 
             if (urlData.host) {
                 document.getElementById("host").style.display = ""
-                watchRoomCode()
             } else if (urlData.join) {
                 document.getElementById("join").style.display = ""
             }
 
             initGame()
 
-            var tempLevel = localStorage.getItem("tempLevel")
+            let tempLevel = localStorage.getItem("tempLevel")
+            console.log(tempLevel)
             if (tempLevel != null) {
-                var levelString = '({' + atob(tempLevel) + '})'
-                document.getElementById("gameCode").innerHTML = "-- temp level --"
+                let levelString = `({${atob(tempLevel)}})`
+                document.getElementById("gameCode").innerHTML = "-- temp level loaded --"
                 document.getElementById("title").textContent = "temp-level"
                 document.getElementById("copyLink").style.display = "none"
                 levels.tempLevel = eval(levelString)["tempName"]
                 mainGame.runTemp = true
                 localStorage.removeItem("tempLevel")
+                    
             }
         }
-
         function setLevel(lvl) {
-            mainGame.renderer.levelTransistion(lvl)
-            if (window.hostConnection) {
-                hostConnection.broadcast(JSON.stringify({ setLevel: lvl }))
-            }
-        }
-    </script>
-
-    <!-- ── Controles móviles → fireKey directo al document ── -->
-    <script>
-        function fireKey(type, keyCode, key) {
-            var init = {
-                bubbles: true, cancelable: true,
-                key: key,
-                code: key === 'ArrowUp'    ? 'ArrowUp'
-                    : key === 'ArrowDown'  ? 'ArrowDown'
-                    : key === 'ArrowLeft'  ? 'ArrowLeft'
-                    : key === 'ArrowRight' ? 'ArrowRight'
-                    : key === 'Enter'      ? 'Enter'
-                    : 'Key' + key.toUpperCase(),
-                keyCode: keyCode, which: keyCode, charCode: 0
-            }
-            var ev = new KeyboardEvent(type, init)
-            Object.defineProperty(ev, 'keyCode', { get: function(){ return keyCode } })
-            Object.defineProperty(ev, 'which',   { get: function(){ return keyCode } })
-            document.dispatchEvent(ev)
-            window.dispatchEvent(ev)
-            var canvas = document.getElementById('c')
-            if (canvas) canvas.dispatchEvent(ev)
-        }
-
-        document.querySelectorAll('[data-key]').forEach(function(btn) {
-            var key  = btn.dataset.key
-            var code = parseInt(btn.dataset.code)
-
-            btn.addEventListener('touchstart', function(e) {
-                e.preventDefault()
-                btn.classList.add('pressed')
-                fireKey('keydown', code, key)
-            }, { passive: false })
-
-            btn.addEventListener('touchend', function(e) {
-                e.preventDefault()
-                btn.classList.remove('pressed')
-                fireKey('keyup', code, key)
-            }, { passive: false })
-
-            btn.addEventListener('mousedown', function() {
-                btn.classList.add('pressed')
-                fireKey('keydown', code, key)
-            })
-            btn.addEventListener('mouseup', function() {
-                btn.classList.remove('pressed')
-                fireKey('keyup', code, key)
-            })
-            btn.addEventListener('mouseleave', function() {
-                if (btn.classList.contains('pressed')) {
-                    btn.classList.remove('pressed')
-                    fireKey('keyup', code, key)
-                }
-            })
-        })
+    mainGame.renderer.levelTransistion(lvl)
+                            if (window.hostConnection) {
+                                hostConnection.broadcast(JSON.stringify({
+                                    setLevel:lvl,
+                                }))
+                            }
+}
+       
     </script>
 
 </body>
