@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta charset="utf-8">
   <title>Pico Park</title>
-
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       width: 100vw; height: 100vh;
@@ -17,367 +15,105 @@
       touch-action: none;
       font-family: 'Press Start 2P', monospace;
     }
-
-    /* ══ LOBBY ══ */
     #lobby {
       position: fixed; inset: 0;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      z-index: 100;
-      gap: 20px;
-      padding: 20px;
+      gap: 20px; padding: 20px;
     }
     #lobby h1 {
       font-size: clamp(10px, 4vw, 18px);
       color: #e94560;
       text-shadow: 0 0 20px #e94560, 2px 2px 0 #7a0000;
-      text-align: center;
-      line-height: 1.8;
-      letter-spacing: 2px;
+      text-align: center; line-height: 1.8; letter-spacing: 2px;
       animation: pulse 2s ease-in-out infinite;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
     #tg-user-banner {
-      font-size: clamp(7px, 2.5vw, 11px);
-      color: #a8dadc;
+      font-size: clamp(7px, 2.5vw, 11px); color: #a8dadc;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(168,218,220,0.3);
-      border-radius: 8px;
-      padding: 8px 16px;
-      text-align: center;
+      border-radius: 8px; padding: 8px 16px; text-align: center;
     }
     .lobby-btn {
       font-family: 'Press Start 2P', monospace;
       font-size: clamp(8px, 2.8vw, 12px);
-      color: #fff;
-      background: #e94560;
-      border: none;
-      border-radius: 6px;
-      padding: 14px 24px;
-      cursor: pointer;
-      width: 100%;
-      max-width: 320px;
-      text-align: center;
-      box-shadow: 0 4px 0 #7a0000;
+      color: #fff; background: #e94560; border: none; border-radius: 6px;
+      padding: 14px 24px; cursor: pointer; width: 100%; max-width: 320px;
+      text-align: center; box-shadow: 0 4px 0 #7a0000;
       transition: transform 0.08s, box-shadow 0.08s;
       -webkit-tap-highlight-color: transparent;
     }
     .lobby-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #7a0000; }
     .lobby-btn.secondary { background: #0f3460; box-shadow: 0 4px 0 #061a33; }
     .lobby-btn.secondary:active { box-shadow: 0 1px 0 #061a33; }
-
-    .input-group {
-      display: flex; flex-direction: column;
-      gap: 8px; width: 100%; max-width: 320px;
-    }
+    .input-group { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px; }
     .input-group label { font-size: clamp(7px, 2.2vw, 9px); color: #a8dadc; }
     .input-group input {
-      font-family: 'Press Start 2P', monospace;
-      font-size: clamp(8px, 2.5vw, 10px);
-      background: rgba(255,255,255,0.08);
-      border: 2px solid rgba(168,218,220,0.4);
-      border-radius: 6px;
-      color: #fff;
-      padding: 12px 10px;
-      width: 100%;
-      outline: none;
+      font-family: 'Press Start 2P', monospace; font-size: clamp(8px, 2.5vw, 10px);
+      background: rgba(255,255,255,0.08); border: 2px solid rgba(168,218,220,0.4);
+      border-radius: 6px; color: #fff; padding: 12px 10px; width: 100%; outline: none;
     }
     .input-group input:focus { border-color: #e94560; }
     .divider { font-size: clamp(7px, 2vw, 9px); color: rgba(255,255,255,0.3); text-align: center; }
-    #join-section {
-      display: flex; flex-direction: column;
-      align-items: center; gap: 10px;
-      width: 100%; max-width: 320px;
-    }
-
-    /* ══ GAME WRAPPER ══ */
-    #game-wrapper {
-      position: fixed; inset: 0;
-      display: none;
-    }
-
-    /* PORTRAIT */
-    @media (orientation: portrait) {
-      #game-wrapper { flex-direction: column; background: #111; }
-      #canvas-area { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-      #mobile-controls {
-        height: 170px; flex-shrink: 0;
-        display: flex; flex-direction: row;
-        align-items: center; justify-content: space-between;
-        padding: 10px 24px; gap: 12px;
-        background: rgba(0,0,0,0.8);
-        border-top: 1px solid rgba(233,69,96,0.3);
-      }
-      #controls-left, #controls-right { display: flex; align-items: center; justify-content: center; }
-    }
-
-    /* LANDSCAPE */
-    @media (orientation: landscape) {
-      #game-wrapper { flex-direction: row; background: #111; }
-      #canvas-area { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-      #mobile-controls { display: contents; }
-      #controls-left {
-        width: 150px; flex-shrink: 0; order: -1;
-        display: flex; align-items: center; justify-content: center;
-        background: rgba(0,0,0,0.8);
-        border-right: 1px solid rgba(233,69,96,0.3);
-      }
-      #controls-right {
-        width: 150px; flex-shrink: 0;
-        display: flex; flex-direction: column;
-        align-items: center; justify-content: center;
-        gap: 18px;
-        background: rgba(0,0,0,0.8);
-        border-left: 1px solid rgba(233,69,96,0.3);
-      }
-    }
-
-    #game-frame { width: 100%; height: 100%; border: none; display: block; }
-
-    /* ══ CONTROLES ══ */
-    .dpad { position: relative; width: 130px; height: 130px; flex-shrink: 0; }
-    .btn-d {
-      position: absolute; width: 44px; height: 44px;
-      background: rgba(233,69,96,0.2);
-      border: 2px solid rgba(233,69,96,0.6);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; color: #fff;
-      cursor: pointer; -webkit-tap-highlight-color: transparent;
-      transition: background 0.08s; user-select: none;
-    }
-    .btn-d:active, .btn-d.pressed { background: rgba(233,69,96,0.7); }
-    .btn-left  { left: 0;    top: 43px; }
-    .btn-right { left: 86px; top: 43px; }
-    .btn-up    { left: 43px; top: 0; }
-    .btn-down  { left: 43px; top: 86px; }
-
-    .action-btns { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; justify-content: center; }
-    .btn-action {
-      width: 60px; height: 60px; border-radius: 50%;
-      border: 3px solid rgba(255,255,255,0.5);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: bold; color: #fff;
-      cursor: pointer; -webkit-tap-highlight-color: transparent;
-      flex-shrink: 0; user-select: none; transition: background 0.08s;
-      font-family: 'Press Start 2P', monospace;
-    }
-    .btn-action:active, .btn-action.pressed { filter: brightness(1.5); }
-    .btn-jump  { background: rgba(233,69,96,0.55); font-size: 20px; }
-    .btn-enter { background: rgba(0,180,100,0.55); font-size: 8px; }
-    .btn-e     { background: rgba(50,120,255,0.55); font-size: 8px; }
-
-    /* ══ TOAST ══ */
-    #room-toast {
-      display: none;
-      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
-      background: rgba(233,69,96,0.9);
-      color: #fff; font-family: 'Press Start 2P', monospace;
-      font-size: 8px; padding: 10px 18px; border-radius: 8px;
-      z-index: 200; text-align: center; white-space: nowrap;
-    }
+    #join-section { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 320px; }
+    #error-msg { font-size: 9px; color: #ff6b6b; text-align: center; display: none; }
   </style>
 </head>
 <body>
-
-<!-- ══ LOBBY ══ -->
 <div id="lobby">
   <h1>🐱 PICO PARK<br>CLONE</h1>
   <div id="tg-user-banner">👤 <span id="tg-username">Player</span></div>
+
   <button class="lobby-btn" onclick="hostGame()">🎮 HOST GAME</button>
+
   <div class="divider">── OR ──</div>
+
   <div id="join-section">
     <div class="input-group">
-      <label>PEER ID (from host)</label>
-      <!-- El PeerID del juego es largo, sin límite de 8 chars -->
-      <input type="text" id="room-code" placeholder="Paste peer ID here"
-             autocomplete="off" autocorrect="off" spellcheck="false">
+      <label>ROOM CODE (4 letters)</label>
+      <!-- El host genera una palabra de 4 letras ej: CAKE -->
+      <input type="text" id="room-code" placeholder="CAKE" maxlength="10"
+             style="text-transform:uppercase" autocomplete="off" autocorrect="off" spellcheck="false">
     </div>
+    <div id="error-msg">Please enter the room code</div>
     <button class="lobby-btn secondary" onclick="joinGame()">🔗 JOIN ROOM</button>
   </div>
 </div>
 
-<!-- ══ TOAST ══ -->
-<div id="room-toast"></div>
-
-<!-- ══ JUEGO (iframe) ══ -->
-<div id="game-wrapper">
-  <div id="canvas-area">
-    <!-- game.html corre aquí adentro, con sus propios scripts -->
-    <iframe id="game-frame" src="" allow="autoplay" allowfullscreen></iframe>
-  </div>
-
-  <div id="mobile-controls">
-    <!-- D-PAD izquierda -->
-    <div id="controls-left">
-      <div class="dpad">
-        <div class="btn-d btn-up"    data-key="ArrowUp"    data-code="38">↑</div>
-        <div class="btn-d btn-left"  data-key="ArrowLeft"  data-code="37">←</div>
-        <div class="btn-d btn-right" data-key="ArrowRight" data-code="39">→</div>
-        <div class="btn-d btn-down"  data-key="ArrowDown"  data-code="40">↓</div>
-      </div>
-    </div>
-    <!-- Botones derecha -->
-    <div id="controls-right">
-      <div class="action-btns">
-        <div class="btn-action btn-enter" data-key="Enter" data-code="13">ENT</div>
-        <div class="btn-action btn-jump"  data-key="ArrowUp" data-code="38">⬆️</div>
-        <div class="btn-action btn-e"     data-key="e"    data-code="69">E</div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
-  /* ── Telegram ── */
   const tg = window.Telegram?.WebApp;
-  if (tg) {
-    tg.ready();
-    tg.expand();
-    tg.BackButton.show();
-    tg.BackButton.onClick(() => {
-      if (document.getElementById('game-wrapper').style.display === 'flex') {
-        showLobby();
-      } else {
-        tg.close();
-      }
-    });
-  }
+  if (tg) { tg.ready(); tg.expand(); }
+
   const tgUser = tg?.initDataUnsafe?.user;
-  const username = tgUser?.username ? '@' + tgUser.username : tgUser?.first_name || 'Player';
+  const username = tgUser?.username
+    ? '@' + tgUser.username
+    : (tgUser?.first_name || 'Player');
   document.getElementById('tg-username').textContent = username;
 
-  /* ── Lobby ── */
-  function hostGame() {
-    // El juego original usa ?host=true para iniciar como host
-    document.getElementById('game-frame').src = 'game.html?host=true';
-    showGame();
+  // Guardar username para que game.html lo use
+  localStorage.setItem('tg_username', username);
 
-    // Esperar el PeerID que game.html envía por postMessage
-    window.addEventListener('message', function onMsg(e) {
-      if (e.data?.type === 'roomCode') {
-        const code = e.data.code;
-        showToast('PEER ID: ' + code, 8000);
-        if (tg && tg.showPopup) {
-          try {
-            tg.showPopup({
-              title: '🎮 Share this ID!',
-              message: 'Your Peer ID:\n\n' + code + '\n\nShare it so friends can join.',
-              buttons: [{ type: 'close' }]
-            });
-          } catch(err) {}
-        }
-        // NO remover el listener por si el roomCode se actualiza
-        window.removeEventListener('message', onMsg);
-      }
-    });
+  function hostGame() {
+    // Redirige directo a game.html con ?host=true (igual que el sistema original)
+    window.location.href = 'game.html?host=true';
   }
 
   function joinGame() {
-    const peerId = document.getElementById('room-code').value.trim();
-    if (!peerId) {
-      showToast('Paste the host Peer ID!', 2000);
+    const code = document.getElementById('room-code').value.trim().toUpperCase();
+    if (!code) {
+      document.getElementById('error-msg').style.display = 'block';
       return;
     }
-    // El juego original usa ?join=<peerID>
-    document.getElementById('game-frame').src = 'game.html?join=' + encodeURIComponent(peerId);
-    showGame();
+    // Redirige con ?join=CODE (igual que el sistema original)
+    window.location.href = 'game.html?join=' + encodeURIComponent(code);
   }
 
-  function showGame() {
-    document.getElementById('lobby').style.display = 'none';
-    document.getElementById('game-wrapper').style.display = 'flex';
-    setTimeout(resizeFrame, 100);
-  }
-
-  function showLobby() {
-    document.getElementById('game-frame').src = '';
-    document.getElementById('lobby').style.display = 'flex';
-    document.getElementById('game-wrapper').style.display = 'none';
-  }
-
-  function showToast(msg, ms = 3000) {
-    const t = document.getElementById('room-toast');
-    t.textContent = msg;
-    t.style.display = 'block';
-    setTimeout(() => t.style.display = 'none', ms);
-  }
-
-  /* ── Controles → postMessage al iframe ── */
-  function fireKeyToFrame(type, keyCode, key) {
-    const frame = document.getElementById('game-frame');
-    if (!frame || !frame.contentWindow) return;
-
-    // postMessage al game.html (el juego lo escucha y dispara el evento)
-    frame.contentWindow.postMessage({ type, keyCode, key }, '*');
-
-    // También intentar acceso directo al iframe (mismo origen = funciona en GitHub Pages)
-    try {
-      const iDoc = frame.contentDocument || frame.contentWindow.document;
-      if (iDoc) {
-        const init = {
-          bubbles: true, cancelable: true, key, keyCode, which: keyCode, charCode: 0,
-          code: key === 'ArrowUp' ? 'ArrowUp' : key === 'ArrowDown' ? 'ArrowDown' :
-                key === 'ArrowLeft' ? 'ArrowLeft' : key === 'ArrowRight' ? 'ArrowRight' :
-                key === 'Enter' ? 'Enter' : 'Key' + key.toUpperCase()
-        };
-        const ev = new KeyboardEvent(type, init);
-        Object.defineProperty(ev, 'keyCode', { get: () => keyCode });
-        Object.defineProperty(ev, 'which',   { get: () => keyCode });
-        iDoc.dispatchEvent(ev);
-        iDoc.querySelectorAll('canvas').forEach(c => c.dispatchEvent(ev));
-      }
-    } catch(e) {}
-  }
-
-  document.querySelectorAll('[data-key]').forEach(btn => {
-    const key  = btn.dataset.key;
-    const code = parseInt(btn.dataset.code);
-
-    btn.addEventListener('touchstart', e => {
-      e.preventDefault();
-      btn.classList.add('pressed');
-      fireKeyToFrame('keydown', code, key);
-    }, { passive: false });
-
-    btn.addEventListener('touchend', e => {
-      e.preventDefault();
-      btn.classList.remove('pressed');
-      fireKeyToFrame('keyup', code, key);
-    }, { passive: false });
-
-    btn.addEventListener('mousedown', () => { btn.classList.add('pressed'); fireKeyToFrame('keydown', code, key); });
-    btn.addEventListener('mouseup',   () => { btn.classList.remove('pressed'); fireKeyToFrame('keyup', code, key); });
-    btn.addEventListener('mouseleave', () => {
-      if (btn.classList.contains('pressed')) {
-        btn.classList.remove('pressed');
-        fireKeyToFrame('keyup', code, key);
-      }
-    });
+  // Enter en el input = join
+  document.getElementById('room-code').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') joinGame();
   });
-
-  /* ── Resize iframe ── */
-  function resizeFrame() {
-    const wrapper  = document.getElementById('game-wrapper');
-    const controls = document.getElementById('mobile-controls');
-    const frame    = document.getElementById('game-frame');
-    if (!frame || !wrapper) return;
-    const isPortrait = window.innerHeight > window.innerWidth;
-    if (isPortrait) {
-      frame.style.height = (wrapper.clientHeight - (controls.offsetHeight || 170)) + 'px';
-      frame.style.width  = '100%';
-    } else {
-      frame.style.height = '100%';
-      frame.style.width  = (wrapper.clientWidth - 300) + 'px';
-    }
-  }
-  window.addEventListener('resize', resizeFrame);
-  window.addEventListener('load', resizeFrame);
-  setTimeout(resizeFrame, 300);
 </script>
 </body>
 </html>
