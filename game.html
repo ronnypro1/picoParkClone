@@ -2,11 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-    <!-- ── Telegram Mini App SDK ── -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <script src="./libs/common.js"></script>
     <script src="./libs/matter.min.js"></script>
     <script src="./libs/matterjsRaycast.js"></script>
@@ -20,184 +17,22 @@
         @font-face {
             font-family: squareforced;
             src: local('FORCEDSQUARE'), url(./assets/FORCEDSQUARE.ttf) format('truetype');
-        }
-        * { box-sizing: border-box; }
-        html, body {
-            margin: 0;
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-            background: #111;
-            touch-action: none;
-        }
 
-        /* ── Overlay top ── */
+        }
+        body {
+            margin: 0%;
+            overflow: hidden;
+        }
         .overlay {
             position: fixed;
             top: 0%;
             left: 0%;
             z-index: 10;
         }
-
-        /* ══════════════════════════════════════════
-           GAME WRAPPER: canvas arriba, controles abajo
-        ══════════════════════════════════════════ */
-
-        /* PORTRAIT */
-        @media (orientation: portrait) {
-            #game-wrapper {
-                position: fixed; top: 0; left: 0;
-                width: 100vw; height: 100vh;
-                display: flex; flex-direction: column;
-                background: #111; overflow: hidden;
-            }
-            #canvas-area {
-                flex: 1;
-                display: flex; align-items: center; justify-content: center;
-                overflow: hidden;
-            }
-            #mobile-controls {
-                height: 170px; flex-shrink: 0;
-                display: flex; flex-direction: row;
-                align-items: center; justify-content: space-between;
-                padding: 10px 24px; gap: 12px;
-                background: rgba(0,0,0,0.85);
-                border-top: 1px solid rgba(255,255,255,0.1);
-            }
-            #controls-left, #controls-right {
-                display: flex; align-items: center; justify-content: center;
-            }
-        }
-
-        /* LANDSCAPE */
-        @media (orientation: landscape) {
-            #game-wrapper {
-                position: fixed; top: 0; left: 0;
-                width: 100vw; height: 100vh;
-                display: flex; flex-direction: row;
-                background: #111; overflow: hidden;
-            }
-            #canvas-area {
-                flex: 1;
-                display: flex; align-items: center; justify-content: center;
-                overflow: hidden;
-            }
-            #mobile-controls { display: contents; }
-            #controls-left {
-                width: 150px; flex-shrink: 0; order: -1;
-                display: flex; align-items: center; justify-content: center;
-                background: rgba(0,0,0,0.85);
-                border-right: 1px solid rgba(255,255,255,0.1);
-            }
-            #controls-right {
-                width: 150px; flex-shrink: 0;
-                display: flex; flex-direction: column;
-                align-items: center; justify-content: center;
-                gap: 18px;
-                background: rgba(0,0,0,0.85);
-                border-left: 1px solid rgba(255,255,255,0.1);
-            }
-        }
-
-        /* ── Canvas responsive ── */
-        #c {
-            max-width: 100%;
-            max-height: 100%;
-            display: block;
-        }
-
-        /* ══════════════════════════════════════════
-           CONTROLES (igual al syobon)
-        ══════════════════════════════════════════ */
-        .dpad {
-            position: relative;
-            width: 130px; height: 130px;
-            flex-shrink: 0;
-        }
-        .btn-d {
-            position: absolute;
-            width: 44px; height: 44px;
-            background: rgba(255,255,255,0.15);
-            border: 2px solid rgba(255,255,255,0.4);
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: #fff;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            transition: background 0.08s;
-            user-select: none;
-        }
-        .btn-d:active, .btn-d.pressed { background: rgba(255,255,255,0.55); }
-        .btn-left  { left: 0;    top: 43px; }
-        .btn-right { left: 86px; top: 43px; }
-        .btn-up    { left: 43px; top: 0; }
-        .btn-down  { left: 43px; top: 86px; }
-
-        .action-btns {
-            display: flex; gap: 14px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .btn-action {
-            width: 60px; height: 60px;
-            border-radius: 50%;
-            border: 3px solid rgba(255,255,255,0.5);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 11px; font-weight: bold; color: #fff;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            flex-shrink: 0;
-            user-select: none;
-            transition: background 0.08s;
-        }
-        .btn-action:active, .btn-action.pressed { filter: brightness(1.6); }
-
-        /* Saltar = ArrowUp (Pico Park salta con flecha arriba) */
-        .btn-jump  { background: rgba(233,69,96,0.6); font-size: 22px; }
-        /* Enter = confirmar menú / iniciar nivel */
-        .btn-enter { background: rgba(0,180,100,0.6); font-size: 9px; font-family: monospace; }
-        /* E = acción especial (agarrar objetos, etc.) */
-        .btn-e     { background: rgba(50,120,255,0.6); font-size: 14px; font-family: monospace; }
-
-        /* ── Menú del juego (host/join info) ── */
-        #menu {
-            position: fixed;
-            top: 40px; left: 10px;
-            z-index: 20;
-            background: rgba(255,255,255,0.92);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            max-width: 240px;
-        }
-        #menu h2 { font-size: 14px; margin: 4px 0; }
-        #menu button {
-            margin: 4px 0;
-            padding: 5px 8px;
-            font-size: 12px;
-            cursor: pointer;
-            border-radius: 4px;
-            border: 1px solid #aaa;
-            display: block;
-            width: 100%;
-        }
-
-        /* ── Toast de código de sala ── */
-        #room-toast {
-            display: none;
-            position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
-            background: rgba(233,69,96,0.95);
-            color: #fff; font-size: 12px; font-weight: bold;
-            padding: 10px 20px; border-radius: 8px;
-            z-index: 50; white-space: nowrap;
-            font-family: monospace;
-        }
     </style>
 </head>
 <body>
 
-    <!-- ── Parse URL params ── -->
     <script>
         var url = location.href,
             urlData = url.split("?").splice(-1,1)
@@ -206,126 +41,18 @@
         urlData.forEach((e)=>{
             data[e.split("=")[0]] = e.split("=")[1]
         })
+
         urlData = data
-
-        // Parámetros extra que pasa el index.html de Telegram
-        // ?role=host&name=@usuario  o  ?role=join&code=ABC123&name=@usuario
-        var tgRole = urlData.role   // 'host' | 'join' | undefined
-        var tgName = urlData.name ? decodeURIComponent(urlData.name) : null
-        var tgCode = urlData.code   // código de sala si es join
-
-        // Compatibilidad: si viene role=host → equivale a ?host=true
-        if (tgRole === 'host' && !urlData.host) urlData.host = true
-        // Si viene role=join con code → equivale a ?join=<code>
-        if (tgRole === 'join' && tgCode && !urlData.join) urlData.join = tgCode
     </script>
 
-    <!-- ── Telegram Mini App init ── -->
-    <script>
-        (function() {
-            var tg = window.Telegram && window.Telegram.WebApp
-            if (tg) {
-                tg.ready()
-                tg.expand()
-                tg.BackButton.show()
-                tg.BackButton.onClick(function() {
-                    // Si está en iframe, notifica al padre; si no, cierra la app
-                    if (window.parent !== window) {
-                        window.parent.postMessage({ type: 'backToLobby' }, '*')
-                    } else {
-                        tg.close()
-                    }
-                })
-            }
-        })()
-    </script>
-
-    <!-- ── Toast de código ── -->
-    <div id="room-toast"></div>
-
-    <!-- ══ GAME WRAPPER ══ -->
-    <div id="game-wrapper">
-
-        <!-- Canvas + overlay originales -->
-        <div id="canvas-area">
-            <div class="overlay">
-                <a href="./index.html">Back to Home</a> |
-                <a style="display: none;" id="restartLevel" href="#" onClick="(function(){
-                    mainGame.levelHandler.setLevel(mainGame.levelHandler.currentLevel.name)
-                    return false;
-                })();return false;">Restart Level</a>
-            </div>
-            <canvas id="c" style="display: none;"></canvas>
-        </div>
-
-        <!-- ══ CONTROLES MÓVILES ══ -->
-        <div id="mobile-controls">
-
-            <!-- D-PAD izquierda -->
-            <div id="controls-left">
-                <div class="dpad">
-                    <div class="btn-d btn-up"    data-key="ArrowUp"    data-code="38">↑</div>
-                    <div class="btn-d btn-left"  data-key="ArrowLeft"  data-code="37">←</div>
-                    <div class="btn-d btn-right" data-key="ArrowRight" data-code="39">→</div>
-                    <div class="btn-d btn-down"  data-key="ArrowDown"  data-code="40">↓</div>
-                </div>
-            </div>
-
-            <!-- Botones derecha -->
-            <div id="controls-right">
-                <div class="action-btns">
-                    <!-- Pico Park: ArrowUp = saltar, Enter = confirmar, e = acción -->
-                    <div class="btn-action btn-enter" data-key="Enter" data-code="13">ENT</div>
-                    <div class="btn-action btn-jump"  data-key="ArrowUp" data-code="38">⬆️</div>
-                    <div class="btn-action btn-e"     data-key="e"    data-code="69">E</div>
-                </div>
-            </div>
-
-        </div>
+    <canvas id="c" style="display: none;"></canvas>
+    <div class="overlay">
+        <a href="./index.html">Back to Home</a> | 
+        <a style="display: none;" id="restartLevel" href="#"  onClick="(function(){
+            mainGame.levelHandler.setLevel(mainGame.levelHandler.currentLevel.name)
+            return false;
+        })();return false;">Restart Level</a>
     </div>
-
-    <!-- ══ MENÚ HOST/JOIN (original, reubicado fuera del wrapper para z-index) ══ -->
-    <div id="menu">
-        <br>
-        <div id="host" style="display: none;">
-            <div id="gameDetails">
-                <div id="gameCode">Code: <b id="roomCode">fetching</b><span id="incoming"></span></div>
-                <a id="copyLink" href="#" onclick="(function(){
-                    navigator.clipboard.writeText(`https://aeolus-1.github.io/picoParkClone/game.html?join=${hostConnection.joinConn.selfId}`);
-                    showRoomCodeToast(hostConnection.joinConn.selfId);
-                    return false;
-                })();return false;">[Copy Link]</a>
-            </div>
-            <div id="memberList" style="border: solid black 1px; width:200px">
-                <h2>Members:</h2>
-                <div id="memberlist"></div>
-                <div>Host<br></div>
-            </div>
-            <button onClick="(function(){
-                mainGame.playerhandler.addPlayer({
-                    controls:['a','d','w','s'],
-                    keys:keys,
-                    color:mainGame.fetchColor(),
-                })
-                addPlayerToMenu('Player2')
-                return false;
-            })();return false;">Add local co-op Player</button>
-            <hr>
-            <button onClick="(function(){
-                startGame()
-                hostConnection.broadcast(JSON.stringify({
-                    startGame:true,
-                }))
-                return false;
-            })();return false;">Start Game</button>
-        </div>
-
-        <div id="join" style="display: none;">
-            Waiting for host to start (maybe idk really)
-        </div>
-    </div>
-
-    <!-- ══ SCRIPTS DEL JUEGO (originales, sin cambios) ══ -->
     <script src="./src/multiplayer.js"></script>
     <script src="./src/buttons.js"></script>
     <script src="./src/door.js"></script>
@@ -360,96 +87,89 @@
 
     <script src="./src/menu.js"></script>
 
-    <!-- ══ LÓGICA PRINCIPAL (original + mejoras Telegram) ══ -->
+    <div id="menu">
+        <br>
+        <div id="host" style="display: none;">
+            <div id="gameDetails">
+                <div id="gameCode">Code: <b id="roomCode">fetching</b><span id="incoming"></span></div>
+                <a id="copyLink" href="#" onclick="(function(){
+        navigator.clipboard.writeText(`https://aeolus-1.github.io/picoParkClone/game.html?join=${hostConnection.joinConn.selfId}`);
+        return false;
+    })();return false;">[Copy Link]</a>
+            </div>
+            <div id="memberList" style="border: solid black 1px; width:200px">
+                <h2>Members:</h2>
+                <div id="memberlist"></div>
+                <div>Host<br></div>
+
+            </div>
+            <button onClick="(function(){
+                mainGame.playerhandler.addPlayer({
+                    controls:['a','d','w','s'],
+                    keys:keys,
+                    color:mainGame.fetchColor(),
+                })
+                addPlayerToMenu('Player2')
+                return false;
+            })();return false;">Add local co-op Player</button>
+<hr>
+            <button onClick="(function(){
+                startGame()
+                hostConnection.broadcast(JSON.stringify({
+                    startGame:true,
+                }))
+                return false;
+            })();return false;">Start Game</button>
+            </div>
+
+        <div id="join" style="display: none;">
+            Waiting for host to start (maybe idk really)
+        </div>
+    </div>
+
     <script>
         window.localfile = location.protocol=="file:"
-
-        /* ── Nombre del jugador desde Telegram o URL ── */
-        var playerDisplayName = tgName
-            || (window.Telegram?.WebApp?.initDataUnsafe?.user?.username
-                ? '@' + window.Telegram.WebApp.initDataUnsafe.user.username
-                : null)
-            || (window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name)
-            || 'Player'
-
-        /* ── Toast de código de sala ── */
-        function showRoomCodeToast(code) {
-            var t = document.getElementById('room-toast')
-            t.textContent = '🎮 Room Code: ' + code
-            t.style.display = 'block'
-            // Notificar al padre (index.html del lobby) con postMessage
-            if (window.parent !== window) {
-                window.parent.postMessage({ type: 'roomCode', code: code }, '*')
-            }
-            // Popup nativo de Telegram si está disponible
-            var tg = window.Telegram?.WebApp
-            if (tg && tg.showPopup) {
-                try {
-                    tg.showPopup({
-                        title: '🎮 Room Created!',
-                        message: 'Share this code:\n\n' + code,
-                        buttons: [{ type: 'close' }]
-                    })
-                } catch(e) {}
-            }
-            setTimeout(function() { t.style.display = 'none' }, 6000)
-        }
-
-        /* ── Observar cuando el roomCode se actualiza (para auto-toast) ── */
-        function watchRoomCode() {
-            var el = document.getElementById('roomCode')
-            if (!el) return
-            var observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(m) {
-                    var code = el.textContent.trim()
-                    if (code && code !== 'fetching') {
-                        showRoomCodeToast(code)
-                        observer.disconnect()
-                    }
-                })
-            })
-            observer.observe(el, { childList: true, subtree: true, characterData: true })
-        }
-
-        /* ── Init del juego (original) ── */
         function initGame() {
             window.mainGame = new Game()
 
             var player1 = mainGame.playerhandler.addPlayer({
-                controls:["arrowleft","arrowright","arrowup","arrowdown"],
-                keys:keys,
-            })
+            controls:["arrowleft","arrowright","arrowup","arrowdown"],
+            keys:keys,
+        }) 
 
-            window.hostConnection; window.clientConnection
-            if (urlData.host) { hostConnection = new Host(mainGame); hostConnection.init() }
+            window.hostConnection;window.clientConnection
+            if (urlData.host) {hostConnection = new Host(mainGame);hostConnection.init()}
             if (urlData.join) {
-                clientConnection = new Client(mainGame, player1)
-                clientConnection.init(urlData.join)
+                clientConnection = new Client(mainGame,player1);clientConnection.init(urlData.join)
                 document.getElementById("restartLevel").style.display = "none"
             }
-            if (!urlData.host && !urlData.join) startGame()
+            if (!urlData.host&&!urlData.join) startGame()
+
 
             setInterval(() => {
                 if (window.hostConnection) hostConnection.updateClients()
                 if (window.clientConnection) clientConnection.updateHost()
-            }, 10)
+
+            }, 10);
 
             setInterval(() => {
-                mainGame.players.forEach((e) => { if(!e.onlinePlayer) e.updateKeys(keys) })
-            }, 5)
+                mainGame.players.forEach((e)=>{if(!e.onlinePlayer) e.updateKeys(keys)})
+            }, 5);
+            
         }
-
         function startMainGame() {
             mainGame.testInit()
             mainGame.initRender()
         }
 
-        window.onload = () => {
+       
+
+
+        window.onload=()=>{
             _loadFont("squareforced")
 
             if (urlData.host) {
                 document.getElementById("host").style.display = ""
-                watchRoomCode()
             } else if (urlData.join) {
                 document.getElementById("join").style.display = ""
             }
@@ -457,6 +177,7 @@
             initGame()
 
             let tempLevel = localStorage.getItem("tempLevel")
+            console.log(tempLevel)
             if (tempLevel != null) {
                 let levelString = `({${atob(tempLevel)}})`
                 document.getElementById("gameCode").innerHTML = "-- temp level loaded --"
@@ -465,118 +186,18 @@
                 levels.tempLevel = eval(levelString)["tempName"]
                 mainGame.runTemp = true
                 localStorage.removeItem("tempLevel")
+                    
             }
         }
-
         function setLevel(lvl) {
-            mainGame.renderer.levelTransistion(lvl)
-            if (window.hostConnection) {
-                hostConnection.broadcast(JSON.stringify({ setLevel: lvl }))
-            }
-        }
-    </script>
-
-    <!-- ══ CONTROLES MÓVILES → disparo de teclas ══ -->
-    <script>
-        /* ── fireKey: dispara eventos de teclado en document, window y canvas ── */
-        function fireKey(type, keyCode, key) {
-            var init = {
-                bubbles: true, cancelable: true,
-                key: key,
-                code: key === 'ArrowUp'    ? 'ArrowUp'    :
-                      key === 'ArrowDown'  ? 'ArrowDown'  :
-                      key === 'ArrowLeft'  ? 'ArrowLeft'  :
-                      key === 'ArrowRight' ? 'ArrowRight' :
-                      key === ' '          ? 'Space'       :
-                      key === 'Enter'      ? 'Enter'       :
-                      'Key' + key.toUpperCase(),
-                keyCode: keyCode, which: keyCode, charCode: 0
-            }
-            var e = new KeyboardEvent(type, init)
-            Object.defineProperty(e, 'keyCode', { get: () => keyCode })
-            Object.defineProperty(e, 'which',   { get: () => keyCode })
-
-            document.dispatchEvent(e)
-            window.dispatchEvent(e)
-
-            // También al canvas del juego directamente
-            var canvas = document.getElementById('c')
-            if (canvas) canvas.dispatchEvent(e)
-        }
-
-        /* ── Listener postMessage (cuando corre dentro del iframe del lobby) ── */
-        window.addEventListener('message', function(ev) {
-            if (!ev.data || !ev.data.type) return
-            if (ev.data.type === 'keydown' || ev.data.type === 'keyup') {
-                fireKey(ev.data.type, ev.data.keyCode, ev.data.key)
-            }
-        })
-
-        /* ── Botones del D-pad y acción ── */
-        document.querySelectorAll('[data-key]').forEach(function(btn) {
-            var key  = btn.dataset.key
-            var code = parseInt(btn.dataset.code)
-
-            btn.addEventListener('touchstart', function(e) {
-                e.preventDefault()
-                btn.classList.add('pressed')
-                fireKey('keydown', code, key)
-            }, { passive: false })
-
-            btn.addEventListener('touchend', function(e) {
-                e.preventDefault()
-                btn.classList.remove('pressed')
-                fireKey('keyup', code, key)
-            }, { passive: false })
-
-            // Fallback mouse (desktop testing)
-            btn.addEventListener('mousedown', function() {
-                btn.classList.add('pressed')
-                fireKey('keydown', code, key)
-            })
-            btn.addEventListener('mouseup', function() {
-                btn.classList.remove('pressed')
-                fireKey('keyup', code, key)
-            })
-            btn.addEventListener('mouseleave', function() {
-                if (btn.classList.contains('pressed')) {
-                    btn.classList.remove('pressed')
-                    fireKey('keyup', code, key)
-                }
-            })
-        })
-
-        /* ── Resize del canvas al espacio disponible ── */
-        function resizeCanvas() {
-            var wrapper  = document.getElementById('game-wrapper')
-            var controls = document.getElementById('mobile-controls')
-            var canvas   = document.getElementById('c')
-            if (!canvas || !wrapper) return
-
-            var isPortrait = window.innerHeight > window.innerWidth
-            var availW, availH
-
-            if (isPortrait) {
-                availW = wrapper.clientWidth
-                availH = wrapper.clientHeight - (controls.offsetHeight || 170)
-            } else {
-                availW = wrapper.clientWidth - 300 // 150px cada lado
-                availH = wrapper.clientHeight
-            }
-
-            // Ratio original del juego (ajústalo si cambia en el código del juego)
-            var ratio = 4 / 3
-            var w = availW
-            var h = w / ratio
-            if (h > availH) { h = availH; w = h * ratio }
-
-            canvas.style.width  = Math.floor(w) + 'px'
-            canvas.style.height = Math.floor(h) + 'px'
-        }
-        window.addEventListener('resize', resizeCanvas)
-        window.addEventListener('load',   resizeCanvas)
-        setTimeout(resizeCanvas, 500)
-        setTimeout(resizeCanvas, 1500) // por si el canvas tarda en aparecer
+    mainGame.renderer.levelTransistion(lvl)
+                            if (window.hostConnection) {
+                                hostConnection.broadcast(JSON.stringify({
+                                    setLevel:lvl,
+                                }))
+                            }
+}
+       
     </script>
 
 </body>
