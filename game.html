@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <!-- ── Telegram Mini App SDK ── -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <script src="./libs/common.js"></script>
@@ -30,6 +29,7 @@
             background: #111;
             touch-action: none;
         }
+        /* Canvas ocupa TODO el espacio — los controles están en el index.html padre */
         #c {
             display: block;
             max-width: 100%;
@@ -57,49 +57,37 @@
         }
         #menu h2 { font-size: 13px; margin: 3px 0; }
         #menu button {
-            margin: 3px 0;
-            padding: 4px 8px;
-            font-size: 11px;
-            cursor: pointer;
-            border-radius: 4px;
-            border: 1px solid #aaa;
-            display: block;
-            width: 100%;
+            margin: 3px 0; padding: 4px 8px; font-size: 11px;
+            cursor: pointer; border-radius: 4px; border: 1px solid #aaa;
+            display: block; width: 100%;
         }
 
         #room-toast {
             display: none;
             position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
             background: rgba(233,69,96,0.95);
-            color: #fff; font-size: 11px; font-weight: bold;
+            color: #fff; font-size: 10px; font-weight: bold;
             padding: 8px 16px; border-radius: 8px;
-            z-index: 50; white-space: nowrap;
-            font-family: monospace;
+            z-index: 50; white-space: nowrap; font-family: monospace;
+            max-width: 90vw; overflow: hidden; text-overflow: ellipsis;
         }
     </style>
 </head>
 <body>
 
+    <!-- ── Parse URL: compatible con ?host=true / ?join=PEERID (sistema original) ── -->
     <script>
-        var url = location.href,
-            urlData = url.split("?").splice(-1,1)
-
-        data = {}
-        urlData.forEach((e) => {
-            data[e.split("=")[0]] = e.split("=")[1]
+        var urlRaw  = location.search.slice(1)   // todo lo que va después del ?
+        var urlData = {}
+        urlRaw.split('&').forEach(function(pair) {
+            var parts = pair.split('=')
+            if (parts[0]) urlData[parts[0]] = decodeURIComponent(parts[1] || '')
         })
-        urlData = data
-
-        // Parámetros extra del index.html
-        var tgRole = urlData.role
-        var tgName = urlData.name ? decodeURIComponent(urlData.name) : null
-        var tgCode = urlData.code
-
-        // Compatibilidad con sistema original
-        if (tgRole === 'host' && !urlData.host) urlData.host = true
-        if (tgRole === 'join' && tgCode && !urlData.join) urlData.join = tgCode
+        // Los parámetros que usa el juego original son:  host y join
+        // El index.html los pasa exactamente así: ?host=true  |  ?join=PEERID
     </script>
 
+    <!-- ── Telegram ── -->
     <script>
         (function() {
             var tg = window.Telegram && window.Telegram.WebApp
@@ -108,6 +96,7 @@
                 tg.expand()
                 tg.BackButton.show()
                 tg.BackButton.onClick(function() {
+                    // Avisar al lobby padre para que vuelva al menú
                     if (window.parent !== window) {
                         window.parent.postMessage({ type: 'backToLobby' }, '*')
                     } else {
@@ -130,6 +119,7 @@
 
     <canvas id="c" style="display: none;"></canvas>
 
+    <!-- ── Scripts del juego (originales, sin tocar) ── -->
     <script src="./src/multiplayer.js"></script>
     <script src="./src/buttons.js"></script>
     <script src="./src/door.js"></script>
@@ -154,16 +144,18 @@
     <script src="./src/client.js"></script>
     <script src="./src/menu.js"></script>
 
+    <!-- ── Menú host/join (original, sin cambios) ── -->
     <div id="menu">
         <br>
         <div id="host" style="display: none;">
             <div id="gameDetails">
                 <div id="gameCode">Code: <b id="roomCode">fetching</b><span id="incoming"></span></div>
                 <a id="copyLink" href="#" onclick="(function(){
-                    navigator.clipboard.writeText(`https://aeolus-1.github.io/picoParkClone/game.html?join=${hostConnection.joinConn.selfId}`);
-                    showRoomCodeToast(hostConnection.joinConn.selfId);
+                    var id = hostConnection.joinConn.selfId;
+                    navigator.clipboard.writeText(id);
+                    showRoomCodeToast(id);
                     return false;
-                })();return false;">[Copy Link]</a>
+                })();return false;">[Copy ID]</a>
             </div>
             <div id="memberList" style="border:solid black 1px;width:200px">
                 <h2>Members:</h2>
@@ -187,44 +179,31 @@
             })();return false;">Start Game</button>
         </div>
         <div id="join" style="display: none;">
-            Waiting for host to start (maybe idk really)
+            Waiting for host to start...
         </div>
     </div>
 
+    <!-- ── Lógica principal ── -->
     <script>
         window.localfile = location.protocol == "file:"
 
-        var playerDisplayName = tgName
-            || (window.Telegram?.WebApp?.initDataUnsafe?.user?.username
-                ? '@' + window.Telegram.WebApp.initDataUnsafe.user.username
-                : null)
-            || window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name
-            || 'Player'
-
+        /* Mostrar el Peer ID en toast y enviarlo al lobby padre */
         function showRoomCodeToast(code) {
             var t = document.getElementById('room-toast')
-            t.textContent = '🎮 Code: ' + code
+            t.textContent = '🎮 Peer ID: ' + code
             t.style.display = 'block'
+            // Enviar al index.html (padre del iframe)
             if (window.parent !== window) {
                 window.parent.postMessage({ type: 'roomCode', code: code }, '*')
             }
-            var tg = window.Telegram?.WebApp
-            if (tg && tg.showPopup) {
-                try {
-                    tg.showPopup({
-                        title: '🎮 Room Created!',
-                        message: 'Share this code:\n\n' + code,
-                        buttons: [{ type: 'close' }]
-                    })
-                } catch(e) {}
-            }
-            setTimeout(() => t.style.display = 'none', 6000)
+            setTimeout(function() { t.style.display = 'none' }, 8000)
         }
 
+        /* Observar automáticamente cuando PeerJS asigne el selfId */
         function watchRoomCode() {
             var el = document.getElementById('roomCode')
             if (!el) return
-            var observer = new MutationObserver(() => {
+            var observer = new MutationObserver(function() {
                 var code = el.textContent.trim()
                 if (code && code !== 'fetching') {
                     showRoomCodeToast(code)
@@ -251,13 +230,13 @@
             }
             if (!urlData.host && !urlData.join) startGame()
 
-            setInterval(() => {
+            setInterval(function() {
                 if (window.hostConnection) hostConnection.updateClients()
                 if (window.clientConnection) clientConnection.updateHost()
             }, 10)
 
-            setInterval(() => {
-                mainGame.players.forEach((e) => { if (!e.onlinePlayer) e.updateKeys(keys) })
+            setInterval(function() {
+                mainGame.players.forEach(function(e) { if (!e.onlinePlayer) e.updateKeys(keys) })
             }, 5)
         }
 
@@ -266,7 +245,7 @@
             mainGame.initRender()
         }
 
-        window.onload = () => {
+        window.onload = function() {
             _loadFont("squareforced")
 
             if (urlData.host) {
@@ -278,9 +257,9 @@
 
             initGame()
 
-            let tempLevel = localStorage.getItem("tempLevel")
+            var tempLevel = localStorage.getItem("tempLevel")
             if (tempLevel != null) {
-                let levelString = `({${atob(tempLevel)}})`
+                var levelString = '({' + atob(tempLevel) + '})'
                 document.getElementById("gameCode").innerHTML = "-- temp level loaded --"
                 document.getElementById("title").textContent = "temp-level"
                 document.getElementById("copyLink").style.display = "none"
@@ -298,28 +277,29 @@
         }
     </script>
 
-    <!-- Recibe las teclas del D-pad del index.html via postMessage -->
+    <!-- ── RECIBIR teclas del index.html via postMessage ── -->
+    <!-- NO hay controles propios aquí — los controles están en el index.html padre -->
     <script>
         function fireKey(type, keyCode, key) {
             var init = {
                 bubbles: true, cancelable: true,
                 key: key,
-                code: key === 'ArrowUp'    ? 'ArrowUp'    :
-                      key === 'ArrowDown'  ? 'ArrowDown'  :
-                      key === 'ArrowLeft'  ? 'ArrowLeft'  :
-                      key === 'ArrowRight' ? 'ArrowRight' :
-                      key === ' '          ? 'Space'       :
-                      key === 'Enter'      ? 'Enter'       :
-                      'Key' + key.toUpperCase(),
+                code: key === 'ArrowUp'    ? 'ArrowUp'
+                    : key === 'ArrowDown'  ? 'ArrowDown'
+                    : key === 'ArrowLeft'  ? 'ArrowLeft'
+                    : key === 'ArrowRight' ? 'ArrowRight'
+                    : key === ' '          ? 'Space'
+                    : key === 'Enter'      ? 'Enter'
+                    : 'Key' + key.toUpperCase(),
                 keyCode: keyCode, which: keyCode, charCode: 0
             }
-            var e = new KeyboardEvent(type, init)
-            Object.defineProperty(e, 'keyCode', { get: () => keyCode })
-            Object.defineProperty(e, 'which',   { get: () => keyCode })
-            document.dispatchEvent(e)
-            window.dispatchEvent(e)
+            var ev = new KeyboardEvent(type, init)
+            Object.defineProperty(ev, 'keyCode', { get: function() { return keyCode } })
+            Object.defineProperty(ev, 'which',   { get: function() { return keyCode } })
+            document.dispatchEvent(ev)
+            window.dispatchEvent(ev)
             var canvas = document.getElementById('c')
-            if (canvas) canvas.dispatchEvent(e)
+            if (canvas) canvas.dispatchEvent(ev)
         }
 
         window.addEventListener('message', function(ev) {
