@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- ── Telegram Mini App SDK ── -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <script src="./libs/common.js"></script>
     <script src="./libs/matter.min.js"></script>
     <script src="./libs/matterjsRaycast.js"></script>
@@ -17,17 +20,61 @@
         @font-face {
             font-family: squareforced;
             src: local('FORCEDSQUARE'), url(./assets/FORCEDSQUARE.ttf) format('truetype');
-
         }
-        body {
-            margin: 0%;
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
             overflow: hidden;
+            width: 100%;
+            height: 100%;
+            background: #111;
+            touch-action: none;
+        }
+        #c {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
         }
         .overlay {
             position: fixed;
-            top: 0%;
-            left: 0%;
+            top: 0; left: 0;
             z-index: 10;
+            font-size: 12px;
+            padding: 4px 8px;
+            background: rgba(0,0,0,0.4);
+        }
+        .overlay a { color: #adf; }
+
+        #menu {
+            position: fixed;
+            top: 28px; left: 6px;
+            z-index: 20;
+            background: rgba(255,255,255,0.93);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-width: 220px;
+        }
+        #menu h2 { font-size: 13px; margin: 3px 0; }
+        #menu button {
+            margin: 3px 0;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 4px;
+            border: 1px solid #aaa;
+            display: block;
+            width: 100%;
+        }
+
+        #room-toast {
+            display: none;
+            position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
+            background: rgba(233,69,96,0.95);
+            color: #fff; font-size: 11px; font-weight: bold;
+            padding: 8px 16px; border-radius: 8px;
+            z-index: 50; white-space: nowrap;
+            font-family: monospace;
         }
     </style>
 </head>
@@ -38,21 +85,51 @@
             urlData = url.split("?").splice(-1,1)
 
         data = {}
-        urlData.forEach((e)=>{
+        urlData.forEach((e) => {
             data[e.split("=")[0]] = e.split("=")[1]
         })
-
         urlData = data
+
+        // Parámetros extra del index.html
+        var tgRole = urlData.role
+        var tgName = urlData.name ? decodeURIComponent(urlData.name) : null
+        var tgCode = urlData.code
+
+        // Compatibilidad con sistema original
+        if (tgRole === 'host' && !urlData.host) urlData.host = true
+        if (tgRole === 'join' && tgCode && !urlData.join) urlData.join = tgCode
     </script>
 
-    <canvas id="c" style="display: none;"></canvas>
+    <script>
+        (function() {
+            var tg = window.Telegram && window.Telegram.WebApp
+            if (tg) {
+                tg.ready()
+                tg.expand()
+                tg.BackButton.show()
+                tg.BackButton.onClick(function() {
+                    if (window.parent !== window) {
+                        window.parent.postMessage({ type: 'backToLobby' }, '*')
+                    } else {
+                        tg.close()
+                    }
+                })
+            }
+        })()
+    </script>
+
+    <div id="room-toast"></div>
+
     <div class="overlay">
-        <a href="./index.html">Back to Home</a> | 
-        <a style="display: none;" id="restartLevel" href="#"  onClick="(function(){
+        <a href="./index.html">Back to Home</a> |
+        <a style="display:none;" id="restartLevel" href="#" onClick="(function(){
             mainGame.levelHandler.setLevel(mainGame.levelHandler.currentLevel.name)
             return false;
         })();return false;">Restart Level</a>
     </div>
+
+    <canvas id="c" style="display: none;"></canvas>
+
     <script src="./src/multiplayer.js"></script>
     <script src="./src/buttons.js"></script>
     <script src="./src/door.js"></script>
@@ -60,31 +137,21 @@
     <script src="./src/blocks.js"></script>
     <script src="./src/lasers.js"></script>
     <script src="./src/jumppad.js"></script>
-
     <script src="./src/levels.js"></script>
     <script src="./src/level.js"></script>
-
     <script src="./src/matterInit.js"></script>
     <script src="./src/atlasSetup.js"></script>
-
     <script src="src/syncController.js"></script>
-
     <script src="./src/controls.js"></script>
     <script src="./src/update.js"></script>
-
     <script src="./src/player.js"></script>
     <script src="./src/render.js"></script>
-
     <script src="./src/entity.js"></script>
     <script src="src/particles.js"></script>
-
     <script src="./src/game.js"></script>
-
     <script src="./src/constraints.js"></script>
-
     <script src="./src/host.js"></script>
     <script src="./src/client.js"></script>
-
     <script src="./src/menu.js"></script>
 
     <div id="menu">
@@ -93,15 +160,15 @@
             <div id="gameDetails">
                 <div id="gameCode">Code: <b id="roomCode">fetching</b><span id="incoming"></span></div>
                 <a id="copyLink" href="#" onclick="(function(){
-        navigator.clipboard.writeText(`https://aeolus-1.github.io/picoParkClone/game.html?join=${hostConnection.joinConn.selfId}`);
-        return false;
-    })();return false;">[Copy Link]</a>
+                    navigator.clipboard.writeText(`https://aeolus-1.github.io/picoParkClone/game.html?join=${hostConnection.joinConn.selfId}`);
+                    showRoomCodeToast(hostConnection.joinConn.selfId);
+                    return false;
+                })();return false;">[Copy Link]</a>
             </div>
-            <div id="memberList" style="border: solid black 1px; width:200px">
+            <div id="memberList" style="border:solid black 1px;width:200px">
                 <h2>Members:</h2>
                 <div id="memberlist"></div>
                 <div>Host<br></div>
-
             </div>
             <button onClick="(function(){
                 mainGame.playerhandler.addPlayer({
@@ -112,64 +179,99 @@
                 addPlayerToMenu('Player2')
                 return false;
             })();return false;">Add local co-op Player</button>
-<hr>
+            <hr>
             <button onClick="(function(){
                 startGame()
-                hostConnection.broadcast(JSON.stringify({
-                    startGame:true,
-                }))
+                hostConnection.broadcast(JSON.stringify({ startGame:true }))
                 return false;
             })();return false;">Start Game</button>
-            </div>
-
+        </div>
         <div id="join" style="display: none;">
             Waiting for host to start (maybe idk really)
         </div>
     </div>
 
     <script>
-        window.localfile = location.protocol=="file:"
+        window.localfile = location.protocol == "file:"
+
+        var playerDisplayName = tgName
+            || (window.Telegram?.WebApp?.initDataUnsafe?.user?.username
+                ? '@' + window.Telegram.WebApp.initDataUnsafe.user.username
+                : null)
+            || window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name
+            || 'Player'
+
+        function showRoomCodeToast(code) {
+            var t = document.getElementById('room-toast')
+            t.textContent = '🎮 Code: ' + code
+            t.style.display = 'block'
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'roomCode', code: code }, '*')
+            }
+            var tg = window.Telegram?.WebApp
+            if (tg && tg.showPopup) {
+                try {
+                    tg.showPopup({
+                        title: '🎮 Room Created!',
+                        message: 'Share this code:\n\n' + code,
+                        buttons: [{ type: 'close' }]
+                    })
+                } catch(e) {}
+            }
+            setTimeout(() => t.style.display = 'none', 6000)
+        }
+
+        function watchRoomCode() {
+            var el = document.getElementById('roomCode')
+            if (!el) return
+            var observer = new MutationObserver(() => {
+                var code = el.textContent.trim()
+                if (code && code !== 'fetching') {
+                    showRoomCodeToast(code)
+                    observer.disconnect()
+                }
+            })
+            observer.observe(el, { childList: true, subtree: true, characterData: true })
+        }
+
         function initGame() {
             window.mainGame = new Game()
 
             var player1 = mainGame.playerhandler.addPlayer({
-            controls:["arrowleft","arrowright","arrowup","arrowdown"],
-            keys:keys,
-        }) 
+                controls: ["arrowleft","arrowright","arrowup","arrowdown"],
+                keys: keys,
+            })
 
-            window.hostConnection;window.clientConnection
-            if (urlData.host) {hostConnection = new Host(mainGame);hostConnection.init()}
+            window.hostConnection; window.clientConnection
+            if (urlData.host) { hostConnection = new Host(mainGame); hostConnection.init() }
             if (urlData.join) {
-                clientConnection = new Client(mainGame,player1);clientConnection.init(urlData.join)
+                clientConnection = new Client(mainGame, player1)
+                clientConnection.init(urlData.join)
                 document.getElementById("restartLevel").style.display = "none"
             }
-            if (!urlData.host&&!urlData.join) startGame()
-
+            if (!urlData.host && !urlData.join) startGame()
 
             setInterval(() => {
                 if (window.hostConnection) hostConnection.updateClients()
                 if (window.clientConnection) clientConnection.updateHost()
-
-            }, 10);
+            }, 10)
 
             setInterval(() => {
-                mainGame.players.forEach((e)=>{if(!e.onlinePlayer) e.updateKeys(keys)})
-            }, 5);
-            
+                mainGame.players.forEach((e) => { if (!e.onlinePlayer) e.updateKeys(keys) })
+            }, 5)
         }
+
         function startMainGame() {
             mainGame.testInit()
             mainGame.initRender()
         }
 
-       
-
-
-        window.onload=()=>{
+        window.onload = () => {
             _loadFont("squareforced")
 
             if (urlData.host) {
                 document.getElementById("host").style.display = ""
+                watchRoomCode()
             } else if (urlData.join) {
                 document.getElementById("join").style.display = ""
             }
@@ -177,7 +279,6 @@
             initGame()
 
             let tempLevel = localStorage.getItem("tempLevel")
-            console.log(tempLevel)
             if (tempLevel != null) {
                 let levelString = `({${atob(tempLevel)}})`
                 document.getElementById("gameCode").innerHTML = "-- temp level loaded --"
@@ -186,18 +287,47 @@
                 levels.tempLevel = eval(levelString)["tempName"]
                 mainGame.runTemp = true
                 localStorage.removeItem("tempLevel")
-                    
             }
         }
+
         function setLevel(lvl) {
-    mainGame.renderer.levelTransistion(lvl)
-                            if (window.hostConnection) {
-                                hostConnection.broadcast(JSON.stringify({
-                                    setLevel:lvl,
-                                }))
-                            }
-}
-       
+            mainGame.renderer.levelTransistion(lvl)
+            if (window.hostConnection) {
+                hostConnection.broadcast(JSON.stringify({ setLevel: lvl }))
+            }
+        }
+    </script>
+
+    <!-- Recibe las teclas del D-pad del index.html via postMessage -->
+    <script>
+        function fireKey(type, keyCode, key) {
+            var init = {
+                bubbles: true, cancelable: true,
+                key: key,
+                code: key === 'ArrowUp'    ? 'ArrowUp'    :
+                      key === 'ArrowDown'  ? 'ArrowDown'  :
+                      key === 'ArrowLeft'  ? 'ArrowLeft'  :
+                      key === 'ArrowRight' ? 'ArrowRight' :
+                      key === ' '          ? 'Space'       :
+                      key === 'Enter'      ? 'Enter'       :
+                      'Key' + key.toUpperCase(),
+                keyCode: keyCode, which: keyCode, charCode: 0
+            }
+            var e = new KeyboardEvent(type, init)
+            Object.defineProperty(e, 'keyCode', { get: () => keyCode })
+            Object.defineProperty(e, 'which',   { get: () => keyCode })
+            document.dispatchEvent(e)
+            window.dispatchEvent(e)
+            var canvas = document.getElementById('c')
+            if (canvas) canvas.dispatchEvent(e)
+        }
+
+        window.addEventListener('message', function(ev) {
+            if (!ev.data || !ev.data.type) return
+            if (ev.data.type === 'keydown' || ev.data.type === 'keyup') {
+                fireKey(ev.data.type, ev.data.keyCode, ev.data.key)
+            }
+        })
     </script>
 
 </body>
