@@ -22,18 +22,25 @@ body { margin: 0%; overflow: hidden; }
 <body>
 
 <script>
-var url = location.href,
-    urlData = url.split("?").splice(-1,1)
-    data = {}
-urlData.forEach((e)=>{
-  // Soporta tanto "key=value" como flags solas como "host"
-  if (e.includes("=")) {
-    data[e.split("=")[0]] = e.split("=")[1]
-  } else if (e) {
-    data[e] = true
+// ══════════════════════════════════════════
+// FIX: parser de URL que soporta flags sin valor (?host)
+// El original sólo manejaba key=value, nunca detectaba ?host
+// ══════════════════════════════════════════
+var urlData = {};
+try {
+  var search = location.search.slice(1); // quitar el ?
+  if (search) {
+    search.split('&').forEach(function(part) {
+      var idx = part.indexOf('=');
+      if (idx === -1) {
+        // flag sin valor: "host", "debug", etc.
+        urlData[part] = true;
+      } else {
+        urlData[part.slice(0, idx)] = decodeURIComponent(part.slice(idx + 1));
+      }
+    });
   }
-})
-urlData = data
+} catch(e) {}
 </script>
 
 <canvas id="c" style="display: none;"></canvas>
@@ -96,9 +103,7 @@ urlData = data
     <hr>
     <button onClick="(function(){
       startGame()
-      hostConnection.broadcast(JSON.stringify({
-        startGame:true,
-      }))
+      hostConnection.broadcast(JSON.stringify({ startGame:true }))
       return false;
     })();return false;">Start Game</button>
   </div>
@@ -114,20 +119,17 @@ window.localfile = location.protocol == "file:"
 function initGame() {
   window.mainGame = new Game()
   var player1 = mainGame.playerhandler.addPlayer({
-    controls:["arrowleft","arrowright","arrowup","arrowdown"],
-    keys:keys,
+    controls: ["arrowleft","arrowright","arrowup","arrowdown"],
+    keys: keys,
   })
   window.hostConnection; window.clientConnection
 
-  if (urlData.host) { hostConnection = new Host(mainGame); hostConnection.init() }
-  if (urlData.join) {
-    clientConnection = new Client(mainGame, player1); clientConnection.init(urlData.join)
-    document.getElementById("restartLevel").style.display = "none"
-  }
+  if (urlData.host)  { hostConnection = new Host(mainGame); hostConnection.init() }
+  if (urlData.join)  { clientConnection = new Client(mainGame, player1); clientConnection.init(urlData.join); document.getElementById("restartLevel").style.display = "none" }
   if (!urlData.host && !urlData.join) startGame()
 
   setInterval(() => {
-    if (window.hostConnection) hostConnection.updateClients()
+    if (window.hostConnection)   hostConnection.updateClients()
     if (window.clientConnection) clientConnection.updateHost()
   }, 10);
 
@@ -144,11 +146,8 @@ function startMainGame() {
 window.onload = () => {
   _loadFont("squareforced")
 
-  if (urlData.host) {
-    document.getElementById("host").style.display = ""
-  } else if (urlData.join) {
-    document.getElementById("join").style.display = ""
-  }
+  if (urlData.host)      document.getElementById("host").style.display = ""
+  else if (urlData.join) document.getElementById("join").style.display = ""
 
   initGame()
 
@@ -156,59 +155,68 @@ window.onload = () => {
   if (tempLevel != null) {
     let levelString = `({${atob(tempLevel)}})`
     document.getElementById("gameCode").innerHTML = "-- temp level loaded --"
-    document.getElementById("title").textContent = "temp-level"
+    document.getElementById("title").textContent  = "temp-level"
     document.getElementById("copyLink").style.display = "none"
     levels.tempLevel = eval(levelString)["tempName"]
     mainGame.runTemp = true
     localStorage.removeItem("tempLevel")
   }
 
-  // ══════════════════════════════════════════════════════
-  // NOTIFICAR AL PARENT (index.html) CUANDO EL PEER ID
-  // ESTÉ LISTO — esto es lo que dispara la sala de espera
-  // ══════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════════════════════
+  // NOTIFICAR AL PARENT (index.html) CUANDO PEERJS TENGA EL ID
+  //
+  // PeerJS asigna el ID de forma asíncrona. Lo detectamos
+  // vigilando el elemento #roomCode hasta que deje de decir "fetching".
+  // Luego enviamos postMessage al parent para que aparezca en la
+  // sala de espera de index.html.
+  // ══════════════════════════════════════════════════════════════
   if (urlData.host) {
-    let peerIdSent = false
-    const roomCodeInterval = setInterval(() => {
-      const codeEl = document.getElementById('roomCode')
-      if (codeEl && codeEl.textContent && codeEl.textContent !== 'fetching') {
-        const peerId = codeEl.textContent.trim()
-        if (peerId && !peerIdSent) {
-          peerIdSent = true
-          // Notificar al parent (index.html embebido en iframe)
-          try {
-            window.parent.postMessage({ type: 'roomCode', code: peerId }, '*')
-          } catch(e) {}
-          // También notificar a la ventana superior por si no hay iframe
-          try {
-            window.top.postMessage({ type: 'roomCode', code: peerId }, '*')
-          } catch(e) {}
-          clearInterval(roomCodeInterval)
-        }
-      }
-    }, 300)
+    var peerIdSent  = false;
+    var retryCount  = 0;
+    var maxRetries  = 100; // 100 × 300ms = 30 segundos máximo
 
-    // Timeout de seguridad: si en 30s no apareció el ID, limpiar
-    setTimeout(() => clearInterval(roomCodeInterval), 30000)
-
-    // Monitorear jugadores que se unen y notificar al parent
-    const memberObserver = new MutationObserver(() => {
-      const memberList = document.getElementById('memberlist')
-      if (memberList) {
-        // +1 por el host que no aparece en la lista
-        const count = (memberList.children.length || 0) + 1
-        try { window.parent.postMessage({ type: 'playerJoined', count }, '*') } catch(e) {}
-        try { window.top.postMessage({ type: 'playerJoined', count }, '*') } catch(e) {}
+    var peerIdInterval = setInterval(function() {
+      retryCount++;
+      if (retryCount > maxRetries) {
+        clearInterval(peerIdInterval);
+        return;
       }
-    })
-    // Observar cuando el memberlist esté disponible
-    const waitForMemberList = setInterval(() => {
-      const ml = document.getElementById('memberlist')
+
+      var codeEl = document.getElementById('roomCode');
+      if (!codeEl) return;
+
+      var text = codeEl.textContent.trim();
+      // El elemento empieza con "fetching", cuando PeerJS asigna el ID cambia
+      if (text && text !== 'fetching' && text !== '' && !peerIdSent) {
+        peerIdSent = true;
+        clearInterval(peerIdInterval);
+
+        var msg = { type: 'roomCode', code: text };
+
+        // Notificar al parent (si estamos dentro de un iframe en index.html)
+        try { window.parent.postMessage(msg, '*'); } catch(e) {}
+        // Notificar al top también por si acaso
+        try { if (window.top !== window.parent) window.top.postMessage(msg, '*'); } catch(e) {}
+        // Notificar al opener (si se abrió como ventana nueva)
+        try { if (window.opener) window.opener.postMessage(msg, '*'); } catch(e) {}
+      }
+    }, 300);
+
+    // Observar cambios en #memberlist para notificar jugadores conectados
+    var memberObserver = null;
+    var waitMemberList = setInterval(function() {
+      var ml = document.getElementById('memberlist');
       if (ml) {
-        memberObserver.observe(ml, { childList: true, subtree: true })
-        clearInterval(waitForMemberList)
+        clearInterval(waitMemberList);
+        memberObserver = new MutationObserver(function() {
+          var count = (ml.children ? ml.children.length : 0) + 1; // +1 por el host
+          var msg = { type: 'playerJoined', count: count };
+          try { window.parent.postMessage(msg, '*'); } catch(e) {}
+          try { if (window.top !== window.parent) window.top.postMessage(msg, '*'); } catch(e) {}
+        });
+        memberObserver.observe(ml, { childList: true, subtree: true });
       }
-    }, 500)
+    }, 500);
   }
 }
 

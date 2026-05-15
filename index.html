@@ -35,10 +35,8 @@ html, body {
   letter-spacing: 2px;
   animation: pulse 2s ease-in-out infinite;
 }
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
 #tg-user-banner {
   font-size: clamp(7px, 2.5vw, 11px);
   color: #a8dadc;
@@ -53,12 +51,9 @@ html, body {
   font-size: clamp(8px, 2.8vw, 12px);
   color: #fff;
   background: #e94560;
-  border: none;
-  border-radius: 6px;
-  padding: 14px 24px;
-  cursor: pointer;
-  width: 100%;
-  max-width: 320px;
+  border: none; border-radius: 6px;
+  padding: 14px 24px; cursor: pointer;
+  width: 100%; max-width: 320px;
   text-align: center;
   box-shadow: 0 4px 0 #7a0000;
   transition: transform 0.08s, box-shadow 0.08s;
@@ -67,127 +62,110 @@ html, body {
 .lobby-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #7a0000; }
 .lobby-btn.secondary { background: #0f3460; box-shadow: 0 4px 0 #061a33; }
 .lobby-btn.secondary:active { box-shadow: 0 1px 0 #061a33; }
-.input-group {
-  display: flex; flex-direction: column;
-  gap: 8px; width: 100%; max-width: 320px;
-}
+.input-group { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px; }
 .input-group label { font-size: clamp(7px, 2.2vw, 9px); color: #a8dadc; }
 .input-group input {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(8px, 2.5vw, 10px);
   background: rgba(255,255,255,0.08);
   border: 2px solid rgba(168,218,220,0.4);
-  border-radius: 6px;
-  color: #fff;
-  padding: 12px 10px;
-  width: 100%;
-  outline: none;
+  border-radius: 6px; color: #fff;
+  padding: 12px 10px; width: 100%; outline: none;
 }
 .input-group input:focus { border-color: #e94560; }
 .divider { font-size: clamp(7px, 2vw, 9px); color: rgba(255,255,255,0.3); text-align: center; }
-#join-section {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 10px;
-  width: 100%; max-width: 320px;
-}
+#join-section { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 320px; }
 
-/* ══ SALA DE ESPERA (HOST) ══ */
+/* ══ SALA DE ESPERA ══ */
 #waiting-room {
   display: none;
   position: fixed; inset: 0; z-index: 90;
   flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 16px; padding: 24px;
+  gap: 18px; padding: 24px;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
 }
 #waiting-room h2 {
-  color: #e94560;
-  font-size: clamp(9px, 3vw, 14px);
-  text-align: center;
-  text-shadow: 0 0 14px #e94560;
+  color: #e94560; font-size: clamp(9px, 3vw, 14px);
+  text-align: center; text-shadow: 0 0 14px #e94560;
 }
-#waiting-room p {
-  color: #a8dadc;
-  font-size: clamp(7px, 2vw, 9px);
-  text-align: center;
-  line-height: 1.8;
+.spinner-row { display: flex; align-items: center; gap: 12px; }
+.spinner {
+  width: 28px; height: 28px; flex-shrink: 0;
+  border: 3px solid rgba(233,69,96,0.2);
+  border-top-color: #e94560;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner-label { font-size: clamp(7px, 2vw, 9px); color: #a8dadc; }
+.dots::after {
+  content: '';
+  animation: dotanim 1.4s steps(4, end) infinite;
+}
+@keyframes dotanim { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} 100%{content:''} }
+
+.room-code-badge {
+  background: rgba(233,69,96,0.12);
+  border: 2px solid rgba(233,69,96,0.5);
+  border-radius: 10px; padding: 14px 28px; text-align: center;
+  width: 100%; max-width: 320px;
+}
+.room-code-badge .badge-label {
+  display: block; font-size: clamp(6px, 1.8vw, 8px);
+  color: #a8dadc; margin-bottom: 10px; letter-spacing: 1px;
+}
+.room-code-badge .badge-code {
+  display: block; font-size: clamp(10px, 3vw, 16px);
+  color: #e94560; letter-spacing: 4px; word-break: break-all; line-height: 1.6;
 }
 .waiting-link-row {
   display: flex; gap: 8px;
-  width: 100%; max-width: 360px;
+  width: 100%; max-width: 320px;
 }
 #waiting-link {
-  flex: 1;
+  flex: 1; min-width: 0;
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(5px, 1.6vw, 7px);
+  font-size: clamp(5px, 1.4vw, 7px);
   background: rgba(255,255,255,0.08);
   border: 2px solid rgba(168,218,220,0.4);
-  border-radius: 6px;
-  color: #fff;
-  padding: 10px 8px;
-  outline: none;
-  min-width: 0;
+  border-radius: 6px; color: #fff;
+  padding: 10px 8px; outline: none;
 }
 #waiting-copy-btn {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(6px, 1.8vw, 8px);
-  background: #e94560;
-  color: #fff; border: none; border-radius: 6px;
-  padding: 10px 12px; cursor: pointer;
-  white-space: nowrap;
-  box-shadow: 0 3px 0 #7a0000;
-  flex-shrink: 0;
-  -webkit-tap-highlight-color: transparent;
+  background: #e94560; color: #fff; border: none;
+  border-radius: 6px; padding: 10px 12px; cursor: pointer;
+  white-space: nowrap; box-shadow: 0 3px 0 #7a0000;
+  flex-shrink: 0; -webkit-tap-highlight-color: transparent;
 }
 #waiting-copy-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #7a0000; }
-.room-code-badge {
-  background: rgba(233,69,96,0.15);
-  border: 2px solid rgba(233,69,96,0.5);
-  border-radius: 8px;
-  padding: 12px 24px;
-  text-align: center;
-}
-.room-code-badge span {
-  display: block;
-  font-size: clamp(6px, 2vw, 8px);
-  color: #a8dadc;
-  margin-bottom: 8px;
-}
-.room-code-badge b {
-  font-size: clamp(12px, 4vw, 20px);
-  color: #e94560;
-  letter-spacing: 4px;
-}
+#waiting-players { font-size: clamp(6px, 2vw, 9px); color: #a8dadc; }
 .waiting-hint {
-  color: rgba(255,255,255,0.35) !important;
-  font-size: clamp(5px, 1.6vw, 7px) !important;
-  max-width: 300px;
+  font-size: clamp(5px, 1.6vw, 7px); color: rgba(255,255,255,0.35);
+  text-align: center; max-width: 300px; line-height: 2.2;
 }
 #btn-enter-game {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(8px, 2.5vw, 11px);
-  background: #0f3460;
-  color: #fff; border: none; border-radius: 6px;
-  padding: 14px 24px; cursor: pointer;
-  box-shadow: 0 4px 0 #061a33;
+  background: #e94560; color: #fff; border: none;
+  border-radius: 6px; padding: 14px 24px; cursor: pointer;
+  box-shadow: 0 4px 0 #7a0000;
   width: 100%; max-width: 320px;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.08s, box-shadow 0.08s;
+  transition: transform 0.08s, box-shadow 0.08s, opacity 0.2s;
+  opacity: 0.45; pointer-events: none;
 }
-#btn-enter-game:active { transform: translateY(3px); box-shadow: 0 1px 0 #061a33; }
-#waiting-status {
-  font-size: clamp(6px, 1.8vw, 8px);
-  color: #a8dadc;
-}
-.dot-anim::after {
-  content: '';
-  animation: dots 1.5s steps(3, end) infinite;
-}
-@keyframes dots {
-  0%   { content: ''; }
-  33%  { content: '.'; }
-  66%  { content: '..'; }
-  100% { content: '...'; }
+#btn-enter-game.ready { opacity: 1; pointer-events: auto; }
+#btn-enter-game:active { transform: translateY(3px); box-shadow: 0 1px 0 #7a0000; }
+#btn-cancel-host {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(7px, 2vw, 9px);
+  background: transparent; color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+  padding: 10px 20px; cursor: pointer; margin-top: -4px;
+  width: 100%; max-width: 320px; -webkit-tap-highlight-color: transparent;
 }
 
 /* ══ GAME WRAPPER ══ */
@@ -199,8 +177,7 @@ html, body {
   #game-wrapper { flex-direction: column; background: #111; }
   #canvas-area { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   #mobile-controls {
-    height: 170px; flex-shrink: 0;
-    display: flex; flex-direction: row;
+    height: 170px; flex-shrink: 0; display: flex; flex-direction: row;
     align-items: center; justify-content: space-between;
     padding: 10px 24px; gap: 12px;
     background: rgba(0,0,0,0.8);
@@ -215,15 +192,12 @@ html, body {
   #controls-left {
     width: 150px; flex-shrink: 0; order: -1;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.8);
-    border-right: 1px solid rgba(233,69,96,0.3);
+    background: rgba(0,0,0,0.8); border-right: 1px solid rgba(233,69,96,0.3);
   }
   #controls-right {
-    width: 150px; flex-shrink: 0;
-    display: flex; flex-direction: column;
+    width: 150px; flex-shrink: 0; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 18px;
-    background: rgba(0,0,0,0.8);
-    border-left: 1px solid rgba(233,69,96,0.3);
+    background: rgba(0,0,0,0.8); border-left: 1px solid rgba(233,69,96,0.3);
   }
 }
 #game-frame { width: 100%; height: 100%; border: none; display: block; }
@@ -232,29 +206,22 @@ html, body {
 .dpad { position: relative; width: 130px; height: 130px; flex-shrink: 0; }
 .btn-d {
   position: absolute; width: 44px; height: 44px;
-  background: rgba(233,69,96,0.2);
-  border: 2px solid rgba(233,69,96,0.6);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
+  background: rgba(233,69,96,0.2); border: 2px solid rgba(233,69,96,0.6);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
   font-size: 20px; color: #fff; cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.08s; user-select: none;
+  -webkit-tap-highlight-color: transparent; user-select: none;
 }
 .btn-d:active, .btn-d.pressed { background: rgba(233,69,96,0.7); }
-.btn-left { left: 0; top: 43px; }
-.btn-right { left: 86px; top: 43px; }
-.btn-up { left: 43px; top: 0; }
-.btn-down { left: 43px; top: 86px; }
+.btn-left{left:0;top:43px} .btn-right{left:86px;top:43px}
+.btn-up{left:43px;top:0}   .btn-down{left:43px;top:86px}
 .action-btns { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; justify-content: center; }
 .btn-action {
   width: 60px; height: 60px; border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.5);
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: bold; color: #fff;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  flex-shrink: 0; user-select: none;
-  transition: background 0.08s;
+  cursor: pointer; color: #fff; flex-shrink: 0; user-select: none;
   font-family: 'Press Start 2P', monospace;
+  -webkit-tap-highlight-color: transparent;
 }
 .btn-action:active, .btn-action.pressed { filter: brightness(1.5); }
 .btn-jump  { background: rgba(233,69,96,0.55); font-size: 20px; }
@@ -263,12 +230,10 @@ html, body {
 
 /* ══ TOAST ══ */
 #room-toast {
-  display: none;
-  position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
-  background: rgba(233,69,96,0.9); color: #fff;
+  display: none; position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+  background: rgba(233,69,96,0.95); color: #fff;
   font-family: 'Press Start 2P', monospace; font-size: 8px;
-  padding: 10px 18px; border-radius: 8px;
-  z-index: 200; text-align: center; white-space: nowrap;
+  padding: 10px 18px; border-radius: 8px; z-index: 300; text-align: center; white-space: nowrap;
 }
 </style>
 </head>
@@ -278,41 +243,42 @@ html, body {
 <div id="lobby">
   <h1>🐱 PICO PARK<br>CLONE</h1>
   <div id="tg-user-banner">👤 <span id="tg-username">Player</span></div>
-
   <button class="lobby-btn" onclick="hostGame()">🎮 HOST GAME</button>
   <div class="divider">── OR ──</div>
-
   <div id="join-section">
     <div class="input-group">
-      <label>PEER ID / ROOM CODE</label>
-      <input type="text" id="room-code" placeholder="paste peer id here"
+      <label>PEER ID / CÓDIGO</label>
+      <input type="text" id="room-code" placeholder="Pega el peer ID aquí"
         autocomplete="off" autocorrect="off" spellcheck="false">
     </div>
     <button class="lobby-btn secondary" onclick="joinGame()">🔗 JOIN ROOM</button>
   </div>
 </div>
 
-<!-- ══ SALA DE ESPERA (HOST) ══ -->
+<!-- ══ SALA DE ESPERA ══ -->
 <div id="waiting-room">
   <h2>🎮 SALA CREADA</h2>
 
-  <div class="room-code-badge">
-    <span>ROOM CODE (PEER ID)</span>
-    <b id="waiting-code"><span class="dot-anim">Generando</span></b>
+  <div class="spinner-row" id="spinner-row">
+    <div class="spinner"></div>
+    <span class="spinner-label">Conectando con PeerJS<span class="dots"></span></span>
   </div>
 
-  <p>Comparte este link con tus amigos:</p>
+  <div class="room-code-badge">
+    <span class="badge-label">ROOM CODE (PEER ID)</span>
+    <span class="badge-code" id="waiting-code">—</span>
+  </div>
 
   <div class="waiting-link-row">
-    <input id="waiting-link" type="text" readonly value="esperando peer id...">
+    <input id="waiting-link" type="text" readonly placeholder="link aparecerá aquí...">
     <button id="waiting-copy-btn" onclick="copyRoomLink()">📋 COPIAR</button>
   </div>
 
-  <p id="waiting-status">Esperando jugadores<span class="dot-anim"></span></p>
-  <p class="waiting-hint">Cuando todos estén listos, presiona "IR AL JUEGO" y luego "Start Game" dentro del juego</p>
+  <p id="waiting-players">Esperando jugadores<span class="dots"></span></p>
+  <p class="waiting-hint">Cuando todos estén listos,<br>presiona IR AL JUEGO → Start Game</p>
 
   <button id="btn-enter-game" onclick="enterGame()">▶ IR AL JUEGO</button>
-  <button class="lobby-btn secondary" style="max-width:320px; margin-top:4px;" onclick="cancelHost()">✖ CANCELAR</button>
+  <button id="btn-cancel-host" onclick="cancelHost()">✖ CANCELAR</button>
 </div>
 
 <!-- ══ TOAST ══ -->
@@ -321,239 +287,234 @@ html, body {
 <!-- ══ JUEGO ══ -->
 <div id="game-wrapper">
   <div id="canvas-area">
-    <iframe id="game-frame" src="" allow="autoplay" allowfullscreen></iframe>
+    <!-- allow="clipboard-write" necesario para que PeerJS funcione bien en algunos browsers -->
+    <iframe id="game-frame" src=""
+      allow="autoplay; clipboard-write"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+      allowfullscreen></iframe>
   </div>
   <div id="mobile-controls">
     <div id="controls-left">
       <div class="dpad">
-        <div class="btn-d btn-up"    data-key="ArrowUp"    data-code="38">↑</div>
-        <div class="btn-d btn-left"  data-key="ArrowLeft"  data-code="37">←</div>
-        <div class="btn-d btn-right" data-key="ArrowRight" data-code="39">→</div>
-        <div class="btn-d btn-down"  data-key="ArrowDown"  data-code="40">↓</div>
+        <div class="btn-d btn-up"     data-key="ArrowUp"    data-code="38">↑</div>
+        <div class="btn-d btn-left"   data-key="ArrowLeft"  data-code="37">←</div>
+        <div class="btn-d btn-right"  data-key="ArrowRight" data-code="39">→</div>
+        <div class="btn-d btn-down"   data-key="ArrowDown"  data-code="40">↓</div>
       </div>
     </div>
     <div id="controls-right">
       <div class="action-btns">
-        <div class="btn-action btn-enter"   data-key="Enter" data-code="13">ENT</div>
-        <div class="btn-action btn-jump"    data-key=" "     data-code="32">⬆️</div>
-        <div class="btn-action btn-action-e" data-key="e"   data-code="69">E</div>
+        <div class="btn-action btn-enter"    data-key="Enter" data-code="13">ENT</div>
+        <div class="btn-action btn-jump"     data-key=" "     data-code="32">⬆️</div>
+        <div class="btn-action btn-action-e" data-key="e"     data-code="69">E</div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-/* ══ TELEGRAM MINI APP ══ */
+/* ══ TELEGRAM ══ */
 const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.ready();
   tg.expand();
   tg.BackButton.show();
   tg.BackButton.onClick(() => {
-    const lobby   = document.getElementById('lobby');
-    const waiting = document.getElementById('waiting-room');
-    const game    = document.getElementById('game-wrapper');
-    if (game.style.display !== 'none' && waiting.style.display === 'none') {
-      // dentro del juego → volver a sala de espera si era host, si no al lobby
-      showLobby();
-    } else if (waiting.style.display !== 'none') {
-      cancelHost();
-    } else {
-      tg.close();
-    }
+    if (document.getElementById('game-wrapper').style.display !== 'none') showLobby();
+    else if (document.getElementById('waiting-room').style.display !== 'none') cancelHost();
+    else tg.close();
   });
 }
-
-const tgUser  = tg?.initDataUnsafe?.user;
-const username = tgUser?.username
-  ? '@' + tgUser.username
-  : (tgUser?.first_name || 'Player');
+const tgUser   = tg?.initDataUnsafe?.user;
+const username = tgUser?.username ? '@'+tgUser.username : (tgUser?.first_name || 'Player');
 document.getElementById('tg-username').textContent = username;
 
-/* ══ BASE URL para compartir ══
-   Si está en GitHub Pages usa la URL pública,
-   si no usa location.href relativo. */
-function getBaseUrl() {
-  return location.href.split('?')[0].replace('index.html','');
-}
+let currentPeerId = null;
 
 /* ══ HOST ══ */
 function hostGame() {
-  // 1. Mostrar sala de espera
-  document.getElementById('lobby').style.display = 'none';
+  currentPeerId = null;
+
+  // Mostrar sala de espera
+  document.getElementById('lobby').style.display        = 'none';
   document.getElementById('waiting-room').style.display = 'flex';
 
-  // 2. Cargar game.html?host en el iframe (oculto por ahora)
-  //    El parámetro correcto que el juego original espera es "?host" (sin valor)
+  // Reset UI sala
+  document.getElementById('waiting-code').textContent  = '—';
+  document.getElementById('waiting-link').value        = '';
+  document.getElementById('btn-enter-game').classList.remove('ready');
+  document.getElementById('spinner-row').style.display = 'flex';
+  document.getElementById('waiting-players').innerHTML = 'Esperando jugadores<span class="dots"></span>';
+
+  // Cargar game.html?host en el iframe pero con el game-wrapper INVISIBLE
+  // PeerJS necesita correr en el DOM para generar el ID, pero no queremos
+  // que tape la sala de espera
+  const gw = document.getElementById('game-wrapper');
+  gw.style.display    = 'flex';        // necesario para que el iframe exista en el DOM
+  gw.style.visibility = 'hidden';      // pero invisible
+  gw.style.pointerEvents = 'none';     // y sin interacción
+
   const frame = document.getElementById('game-frame');
   frame.src = 'game.html?host';
-  document.getElementById('game-wrapper').style.display = 'flex';
 
-  // 3. Escuchar el postMessage que game.html enviará con el peer ID
-  window.addEventListener('message', function onRoomCode(e) {
-    if (e.data && e.data.type === 'roomCode') {
-      const peerId = e.data.code;
+  window.addEventListener('message', onGameMessage);
+}
 
-      // Mostrar código en el badge
-      document.getElementById('waiting-code').textContent = peerId;
+function onGameMessage(e) {
+  if (!e.data || typeof e.data !== 'object') return;
 
-      // Armar link para compartir
-      const link = getBaseUrl() + 'index.html?join=' + peerId;
-      document.getElementById('waiting-link').value = link;
+  if (e.data.type === 'roomCode' && e.data.code) {
+    currentPeerId = e.data.code;
 
-      // Popup nativo de Telegram si está disponible
-      if (tg && tg.showPopup) {
-        tg.showPopup({
-          title: '🎮 Sala creada!',
-          message: 'Comparte este código con tus amigos:\n\n' + peerId,
-          buttons: [{ type: 'close', text: 'OK' }]
-        });
-      }
+    // Ocultar spinner
+    document.getElementById('spinner-row').style.display = 'none';
 
-      window.removeEventListener('message', onRoomCode);
+    // Mostrar código
+    document.getElementById('waiting-code').textContent = currentPeerId;
+
+    // Armar link
+    const base = location.href.replace(/[?#].*$/, '');
+    const link = base + '?join=' + currentPeerId;
+    document.getElementById('waiting-link').value = link;
+
+    // Habilitar botón
+    document.getElementById('btn-enter-game').classList.add('ready');
+
+    // Popup Telegram
+    if (tg && tg.showPopup) {
+      tg.showPopup({
+        title: '🎮 Sala lista!',
+        message: 'Peer ID:\n' + currentPeerId + '\n\nComparte el link con tus amigos!',
+        buttons: [{ type: 'close', text: 'OK' }]
+      });
     }
+  }
 
-    // También escuchar actualizaciones de jugadores conectados
-    if (e.data && e.data.type === 'playerJoined') {
-      const count = e.data.count || '?';
-      document.getElementById('waiting-status').innerHTML =
-        `${count} jugador(es) conectado(s)`;
-    }
-  });
+  if (e.data.type === 'playerJoined') {
+    document.getElementById('waiting-players').textContent =
+      (e.data.count || '?') + ' jugador(es) en sala ✓';
+  }
 }
 
 function enterGame() {
-  // Ocultar sala de espera, mostrar el juego
+  if (!currentPeerId) { showToast('⏳ Espera el código...', 2000); return; }
+
+  // Hacer el juego visible
+  const gw = document.getElementById('game-wrapper');
+  gw.style.visibility  = 'visible';
+  gw.style.pointerEvents = 'auto';
+
   document.getElementById('waiting-room').style.display = 'none';
-  // game-wrapper ya está visible
+  window.removeEventListener('message', onGameMessage);
+  resizeFrame();
 }
 
 function cancelHost() {
+  window.removeEventListener('message', onGameMessage);
   document.getElementById('game-frame').src = '';
+  const gw = document.getElementById('game-wrapper');
+  gw.style.display       = 'none';
+  gw.style.visibility    = 'visible';
+  gw.style.pointerEvents = 'auto';
   document.getElementById('waiting-room').style.display = 'none';
-  document.getElementById('game-wrapper').style.display = 'none';
-  document.getElementById('lobby').style.display = 'flex';
-  // Resetear waiting room para próxima vez
-  document.getElementById('waiting-code').innerHTML = '<span class="dot-anim">Generando</span>';
-  document.getElementById('waiting-link').value = 'esperando peer id...';
-  document.getElementById('waiting-status').innerHTML = 'Esperando jugadores<span class="dot-anim"></span>';
+  document.getElementById('lobby').style.display        = 'flex';
+  currentPeerId = null;
 }
 
 function copyRoomLink() {
   const link = document.getElementById('waiting-link').value;
   const btn  = document.getElementById('waiting-copy-btn');
-  if (!link || link === 'esperando peer id...') {
-    showToast('⏳ Todavía generando código...', 2000);
-    return;
-  }
-  navigator.clipboard.writeText(link).then(() => {
-    btn.textContent = '✅ COPIADO!';
-    setTimeout(() => { btn.textContent = '📋 COPIAR'; }, 2500);
-  }).catch(() => {
-    // Fallback para móviles sin clipboard API
-    const tmp = document.createElement('input');
-    tmp.value = link;
-    document.body.appendChild(tmp);
-    tmp.select();
-    document.execCommand('copy');
-    document.body.removeChild(tmp);
-    btn.textContent = '✅ COPIADO!';
-    setTimeout(() => { btn.textContent = '📋 COPIAR'; }, 2500);
-  });
+  if (!link || link === '') { showToast('⏳ Todavía generando...', 2000); return; }
 
-  // Compartir vía Telegram si está disponible
-  if (tg && tg.switchInlineQuery) {
-    // opcional: no bloqueante
+  const ok = () => {
+    btn.textContent = '✅ COPIADO!';
+    setTimeout(() => btn.textContent = '📋 COPIAR', 2500);
+    showToast('Link copiado! 🎉', 2000);
+  };
+
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(link).then(ok).catch(() => fallbackCopy(link, ok));
+  } else {
+    fallbackCopy(link, ok);
   }
+}
+
+function fallbackCopy(text, cb) {
+  try {
+    const tmp = document.createElement('textarea');
+    tmp.value = text; tmp.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(tmp); tmp.focus(); tmp.select();
+    document.execCommand('copy');
+    document.body.removeChild(tmp); cb();
+  } catch(e) { showToast('Copia: ' + text, 6000); }
 }
 
 /* ══ JOIN ══ */
 function joinGame() {
-  const raw = document.getElementById('room-code').value.trim();
+  let raw = document.getElementById('room-code').value.trim();
   if (!raw) { showToast('Ingresa un código!', 2000); return; }
 
-  // El join acepta tanto el peer ID directo como una URL completa
   let peerId = raw;
-  if (raw.includes('?join=')) {
-    peerId = raw.split('?join=').pop().split('&')[0];
-  } else if (raw.includes('join=')) {
-    peerId = raw.split('join=').pop().split('&')[0];
-  }
+  const m = raw.match(/[?&]join=([^&#]+)/);
+  if (m) peerId = m[1];
 
-  document.getElementById('game-frame').src = `game.html?join=${peerId}`;
-  showGame();
-}
-
-function showGame() {
-  document.getElementById('lobby').style.display = 'none';
+  document.getElementById('lobby').style.display        = 'none';
   document.getElementById('waiting-room').style.display = 'none';
+
   const gw = document.getElementById('game-wrapper');
-  gw.style.display = 'flex';
+  gw.style.display       = 'flex';
+  gw.style.visibility    = 'visible';
+  gw.style.pointerEvents = 'auto';
+
+  document.getElementById('game-frame').src = 'game.html?join=' + peerId;
+  resizeFrame();
 }
 
 function showLobby() {
+  window.removeEventListener('message', onGameMessage);
   document.getElementById('game-frame').src = '';
-  document.getElementById('lobby').style.display = 'flex';
+  const gw = document.getElementById('game-wrapper');
+  gw.style.display       = 'none';
+  gw.style.visibility    = 'visible';
+  gw.style.pointerEvents = 'auto';
   document.getElementById('waiting-room').style.display = 'none';
-  document.getElementById('game-wrapper').style.display = 'none';
+  document.getElementById('lobby').style.display        = 'flex';
+  currentPeerId = null;
 }
 
 function showToast(msg, ms = 3000) {
   const t = document.getElementById('room-toast');
-  t.textContent = msg;
-  t.style.display = 'block';
+  t.textContent = msg; t.style.display = 'block';
   setTimeout(() => t.style.display = 'none', ms);
 }
 
-/* ══ CONTROLES MÓVILES → IFRAME ══ */
+/* ══ CONTROLES MÓVILES ══ */
 function fireKeyToFrame(type, keyCode, key) {
   const frame = document.getElementById('game-frame');
-  if (frame && frame.contentWindow) {
+  if (frame?.contentWindow) {
     frame.contentWindow.postMessage({ type, keyCode, key }, '*');
   }
-  const init = {
-    bubbles: true, cancelable: true,
-    key: key, keyCode: keyCode, which: keyCode, charCode: 0,
-    code: key === ' ' ? 'Space'
-        : key === 'Enter' ? 'Enter'
-        : key === 'ArrowUp' ? 'ArrowUp'
-        : key === 'ArrowDown' ? 'ArrowDown'
-        : key === 'ArrowLeft' ? 'ArrowLeft'
-        : key === 'ArrowRight' ? 'ArrowRight'
-        : 'Key' + key.toUpperCase()
-  };
-  const ev = new KeyboardEvent(type, init);
+  const code = key === ' ' ? 'Space' : key === 'Enter' ? 'Enter'
+             : key.startsWith('Arrow') ? key : 'Key' + key.toUpperCase();
+  const ev = new KeyboardEvent(type, { bubbles:true, cancelable:true, key, keyCode, which:keyCode, charCode:0, code });
   Object.defineProperty(ev, 'keyCode', { get: () => keyCode });
   Object.defineProperty(ev, 'which',   { get: () => keyCode });
-  document.dispatchEvent(ev);
-  window.dispatchEvent(ev);
+  [document, window].forEach(t => t.dispatchEvent(ev));
   try {
-    const iDoc = frame.contentDocument || frame.contentWindow?.document;
+    const iDoc = frame?.contentDocument || frame?.contentWindow?.document;
     if (iDoc) {
-      iDoc.dispatchEvent(ev);
-      iDoc.body?.dispatchEvent(ev);
+      iDoc.dispatchEvent(ev); iDoc.body?.dispatchEvent(ev);
       iDoc.querySelectorAll('canvas').forEach(c => c.dispatchEvent(ev));
     }
-  } catch(e) { /* cross-origin */ }
+  } catch(e) {}
 }
 
 document.querySelectorAll('[data-key]').forEach(btn => {
-  const key  = btn.dataset.key;
-  const code = parseInt(btn.dataset.code);
-  btn.addEventListener('touchstart', e => {
-    e.preventDefault(); btn.classList.add('pressed');
-    fireKeyToFrame('keydown', code, key);
-  }, { passive: false });
-  btn.addEventListener('touchend', e => {
-    e.preventDefault(); btn.classList.remove('pressed');
-    fireKeyToFrame('keyup', code, key);
-  }, { passive: false });
-  btn.addEventListener('mousedown', () => {
-    btn.classList.add('pressed'); fireKeyToFrame('keydown', code, key);
-  });
-  btn.addEventListener('mouseup', () => {
-    btn.classList.remove('pressed'); fireKeyToFrame('keyup', code, key);
-  });
+  const key = btn.dataset.key, code = parseInt(btn.dataset.code);
+  btn.addEventListener('touchstart', e => { e.preventDefault(); btn.classList.add('pressed'); fireKeyToFrame('keydown', code, key); }, {passive:false});
+  btn.addEventListener('touchend',   e => { e.preventDefault(); btn.classList.remove('pressed'); fireKeyToFrame('keyup', code, key); }, {passive:false});
+  btn.addEventListener('mousedown',  () => { btn.classList.add('pressed'); fireKeyToFrame('keydown', code, key); });
+  btn.addEventListener('mouseup',    () => { btn.classList.remove('pressed'); fireKeyToFrame('keyup', code, key); });
 });
 
 /* ══ RESIZE ══ */
@@ -563,8 +524,7 @@ function resizeFrame() {
   const frame    = document.getElementById('game-frame');
   if (!frame || !wrapper) return;
   if (window.innerHeight > window.innerWidth) {
-    const availH = wrapper.clientHeight - (controls.offsetHeight || 170);
-    frame.style.height = availH + 'px';
+    frame.style.height = (wrapper.clientHeight - (controls.offsetHeight || 170)) + 'px';
     frame.style.width  = '100%';
   } else {
     frame.style.height = '100%';
@@ -575,16 +535,10 @@ window.addEventListener('resize', resizeFrame);
 window.addEventListener('load',   resizeFrame);
 setTimeout(resizeFrame, 300);
 
-/* ══ JOIN desde URL (cuando alguien recibe el link directo) ══
-   Si la página se abre con ?join=PEERID, entra directo al juego */
-(function checkUrlJoin() {
-  const params = new URLSearchParams(location.search);
-  const joinId = params.get('join');
-  if (joinId) {
-    document.getElementById('room-code').value = joinId;
-    // Pequeño delay para que todo cargue
-    setTimeout(() => joinGame(), 300);
-  }
+/* ══ AUTO JOIN desde URL directa ══ */
+(function() {
+  const joinId = new URLSearchParams(location.search).get('join');
+  if (joinId) { document.getElementById('room-code').value = joinId; setTimeout(joinGame, 400); }
 })();
 </script>
 </body>
